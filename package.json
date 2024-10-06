@@ -1,0 +1,19 @@
+{
+  "name": "@nerisma/express-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastienservouze/express-api.git"
+  },
+  "author": "Nerisma",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sebastienservouze/express-api/issues"
+  },
+  "homepage": "https://github.com/sebastienservouze/express-api#readme",
+  "description": ""
+}
