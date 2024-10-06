@@ -12,7 +12,7 @@
         "strict": true,
 
         /* Module Resolution Options */
-        "esModuleInterop": false,
+        "esModuleInterop": true,
         "skipDefaultLibCheck": true,
         "moduleResolution": "node16"
     },

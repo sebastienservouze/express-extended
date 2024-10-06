@@ -25,13 +25,18 @@
         "@arethetypeswrong/cli": "^0.16.4",
         "@babel/preset-typescript": "^7.25.7",
         "@changesets/cli": "^2.27.9",
+        "@types/express": "^5.0.0",
         "@types/jest": "^29.5.13",
         "@types/node": "^22.7.4",
+        "sqlite3": "^5.1.7",
         "ts-jest": "^29.2.5",
         "typescript": "^5.6.2"
     },
-    "peerDependencies": {
+    "dependencies": {
+        "@nerisma/di": "^1.0.3",
+        "express": "^4.21.0",
+        "pg": "^8.13.0",
         "reflect-metadata": "^0.2.2",
-        "@nerisma/di": "^1.0.1"
+        "typeorm": "^0.3.20"
     }
 }
