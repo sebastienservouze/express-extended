@@ -10,7 +10,7 @@ describe('CrudService', () => {
 
     beforeAll(async () => {
         await TestDataSource.initialize();
-        service = new CarService();
+        service = new CarService(TestDataSource.Instance);
     });
 
     afterEach(async () => {

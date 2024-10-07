@@ -8,6 +8,7 @@ import {MissingRequiredPropertyError} from "../../error/missing-required-propert
 import {NotMatchingIdError} from "../../error/not-matching-id.error";
 import {UnknownPropertyError} from "../../error/unknown-property.error";
 import {PrimaryKeyUpdateError} from "../../error/primary-key-update-error";
+import {Delete, Get, Patch, Post, Put} from "../controller.decorators";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -16,8 +17,7 @@ export abstract class CrudController<T extends AbstractEntity> {
     private entityColumns: ColumnMetadata[];
 
     protected constructor(private readonly service: CrudService<T>) {
-        const metadata = service.getRepository().metadata;
-        this.entityColumns = metadata.columns;
+        this.entityColumns = service.getRepository().metadata.columns;
     }
 
     /**
@@ -27,6 +27,7 @@ export abstract class CrudController<T extends AbstractEntity> {
      * @param req
      * @param res
      */
+    @Get('/')
     public async search(req: Request, res: Response): Promise<Response<Page<T> | null>> {
         const criteria = this.getCriteriaFromQuery(req);
 
@@ -49,6 +50,7 @@ export abstract class CrudController<T extends AbstractEntity> {
      * @param req
      * @param res
      */
+    @Get('/:id')
     public async consult(req: Request, res: Response) {
         const id = req.params.id;
 
@@ -74,6 +76,7 @@ export abstract class CrudController<T extends AbstractEntity> {
      * @param req
      * @param res
      */
+    @Post('/')
     public async create(req: Request, res: Response) {
         const entity = req.body as T;
 
@@ -101,6 +104,7 @@ export abstract class CrudController<T extends AbstractEntity> {
      * @param req
      * @param res
      */
+    @Put('/:id')
     public async update(req: Request, res: Response) {
         const id = req.params.id;
         const entity = req.body as T;
@@ -138,6 +142,7 @@ export abstract class CrudController<T extends AbstractEntity> {
      * @param req
      * @param res
      */
+    @Patch('/:id')
     public async patch(req: Request, res: Response) {
         const id = req.params.id;
         const entity = req.body as T;
@@ -169,6 +174,7 @@ export abstract class CrudController<T extends AbstractEntity> {
      * @param req
      * @param res
      */
+    @Delete('/:id')
     public async delete(req: Request, res: Response) {
         const id = req.params.id;
 
@@ -226,11 +232,13 @@ export abstract class CrudController<T extends AbstractEntity> {
                 throw new UnknownPropertyError(key);
             }
 
-            if (this.entityColumns.find(column => column.propertyName === key)?.isPrimary) {
+            const column = this.entityColumns.find(column => column.propertyName === key);
+
+            if (column!.isPrimary) {
                 throw new PrimaryKeyUpdateError(key);
             }
 
-            if (!allowNull && value === null) {
+            if (!allowNull && value === null && !column!.isNullable) {
                 throw new MissingRequiredPropertyError(key);
             }
         }
