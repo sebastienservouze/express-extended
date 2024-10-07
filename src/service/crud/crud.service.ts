@@ -1,4 +1,4 @@
-import {FindOptionsWhere, Repository} from "typeorm";
+import {FindOptionsWhere, IsNull, Repository} from "typeorm";
 import {AbstractEntity} from "../../db/abstract-entity.model";
 import {Page} from "./page.type";
 
@@ -9,7 +9,7 @@ export abstract class CrudService<T extends AbstractEntity> {
 
     async search(criteria?: FindOptionsWhere<T>, page: number = 1, pageSize: number = 10): Promise<Page<T>> {
         const finalCriteria: any = criteria ?? {};
-        finalCriteria.deletedAt = null;
+        finalCriteria.deletedAt = IsNull();
 
         const [data, total] = await this.repository.findAndCount({
             where: finalCriteria,
@@ -28,7 +28,7 @@ export abstract class CrudService<T extends AbstractEntity> {
     async consult(id: number): Promise<T | null> {
         return await this.repository.findOneBy({
             id: id,
-            deletedAt: null,
+            deletedAt: IsNull(),
         } as unknown as FindOptionsWhere<T>);
     }
 
