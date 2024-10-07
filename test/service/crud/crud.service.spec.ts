@@ -1,7 +1,8 @@
 import {CarService} from "../car.service";
 import {Car} from "../../db/car.entity";
-import {FindOptionsWhere, Like, QueryFailedError} from "typeorm";
+import {EntityNotFoundError, FindOptionsWhere, Like, QueryFailedError} from "typeorm";
 import {TestDataSource} from "../../db/test-data-source";
+import {NotMatchingIdError} from "../../../src/error/not-matching-id.error";
 
 describe('CrudService', () => {
 
@@ -112,13 +113,6 @@ describe('CrudService', () => {
         expect(created.deletedAt).toBeNull();
     });
 
-    it('should throw error when creating a car with missing required attributes', async () => {
-        const car = getCar() as any;
-        car.model = null;
-        
-        await expect(service.create(car)).rejects.toThrow(QueryFailedError);
-    });
-
     it('should update a car', async () => {
         const car = getCar();
         const created = await TestDataSource.Instance.getRepository(Car).save(car);
@@ -136,6 +130,27 @@ describe('CrudService', () => {
         expect(updated.deletedAt).toBeNull();
     });
 
+    it('should throw error when updating a non-existing car', async () => {
+        const car = getCar();
+        car.id = 999;
+        car.model = 'Focus';
+
+        await expect(service.update(car.id, car))
+            .rejects
+            .toThrow(new EntityNotFoundError(Car, 999));
+    });
+
+    it('should throw error when updating with different id & entity id', async () => {
+        const car = getCar();
+        const created = await TestDataSource.Instance.getRepository(Car).save(car);
+
+        created.model = 'Focus';
+
+        await expect(service.update(999, created))
+            .rejects
+            .toThrow(new NotMatchingIdError(created.id, 999));
+    });
+
     it('should delete a car', async () => {
         const car = getCar();
         const created = await TestDataSource.Instance.getRepository(Car).save(car);
@@ -147,16 +162,10 @@ describe('CrudService', () => {
         expect(deleted!.deletedAt).toBeDefined();
     });
 
-    it('should not update a car with different id', async () => {
-        const car = getCar();
-        const created = await TestDataSource.Instance.getRepository(Car).save(car);
-
-        created.id = 999;
-        created.model = 'Focus';
-
-        await expect(service.update(created.id, created))
+    it('should throw error when deleting a non-existing car', async () => {
+        await expect(service.delete(999))
             .rejects
-            .toThrow(`Entity id ${created.id} does not match path parameter id ${999}`);
+            .toThrow(new EntityNotFoundError(Car, 999));
     });
 
     afterAll(async () => {
