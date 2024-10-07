@@ -1,6 +1,6 @@
-import {CarService} from "../car.service";
+import {CarService} from "./car.service";
 import {Car} from "../../db/car.entity";
-import {EntityNotFoundError, FindOptionsWhere, Like, QueryFailedError} from "typeorm";
+import {EntityNotFoundError, Like} from "typeorm";
 import {TestDataSource} from "../../db/test-data-source";
 import {NotMatchingIdError} from "../../../src/error/not-matching-id.error";
 

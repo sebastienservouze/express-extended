@@ -1,5 +1,5 @@
 import express, {Express} from "express";
-import {SimpleController} from "./simple-controller";
+import {SimpleController} from "./simple.controller";
 import {ControllerUtils} from "../../src/controller/controller.utils";
 import * as http from "node:http";
 
