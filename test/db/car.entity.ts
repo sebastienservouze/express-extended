@@ -1,8 +1,8 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
-import {NEntity} from "../../src/db/n-entity.model";
+import {Column, Entity} from "typeorm";
+import {AbstractEntity} from "../../src/db/abstract-entity.model";
 
 @Entity()
-export class Car extends NEntity {
+export class Car extends AbstractEntity {
 
     @Column()
     model!: string;
@@ -10,7 +10,7 @@ export class Car extends NEntity {
     @Column()
     wheels!: number;
 
-    @Column({type: 'datetime'})
+    @Column({type: 'timestamptz'})
     releaseDate!: Date;
 
 }

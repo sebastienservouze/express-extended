@@ -1,8 +1,8 @@
 import {CrudService} from "../../service/crud/crud.service";
 import {Request, Response} from 'express';
-import {NEntity} from "../../db/n-entity.model";
+import {AbstractEntity} from "../../db/abstract-entity.model";
 
-export abstract class CrudController<T extends NEntity> {
+export abstract class CrudController<T extends AbstractEntity> {
 
     constructor(private readonly service: CrudService<T>) {}
 
