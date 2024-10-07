@@ -1,6 +1,6 @@
 import {CarService} from "../car.service";
 import {Car} from "../../db/car.entity";
-import {FindOptionsWhere, Like} from "typeorm";
+import {FindOptionsWhere, Like, QueryFailedError} from "typeorm";
 import {TestDataSource} from "../../db/test-data-source";
 
 describe('CrudService', () => {
@@ -110,6 +110,13 @@ describe('CrudService', () => {
         expect(created.createdAt).toBeDefined();
         expect(created.updatedAt).toBeDefined();
         expect(created.deletedAt).toBeNull();
+    });
+
+    it('should throw error when creating a car with missing required attributes', async () => {
+        const car = getCar() as any;
+        car.model = null;
+        
+        await expect(service.create(car)).rejects.toThrow(QueryFailedError);
     });
 
     it('should update a car', async () => {
