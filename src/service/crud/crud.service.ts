@@ -16,7 +16,7 @@ export abstract class CrudService<T extends AbstractEntity> {
      * @param page
      * @param pageSize
      */
-    async search(criteria?: FindOptionsWhere<T>, page: number = 1, pageSize: number = 10): Promise<Page<T>> {
+    async search(criteria?: FindOptionsWhere<T>, page: number = 1, pageSize: number = 10): Promise<Page<T> | null> {
         const finalCriteria: any = criteria ?? {};
         finalCriteria.deletedAt = IsNull();
 
@@ -25,6 +25,10 @@ export abstract class CrudService<T extends AbstractEntity> {
             skip: (page - 1) * pageSize,
             take: pageSize
         });
+
+        if (data.length === 0) {
+            return null;
+        }
 
         return {
             data,
@@ -74,6 +78,25 @@ export abstract class CrudService<T extends AbstractEntity> {
 
         entity.updatedAt = new Date();
         return this.repository.save(entity);
+    }
+
+    /**
+     * Patch an entity
+     * Only update the fields that are provided
+     *
+     * @param id
+     * @param entity
+     */
+    async patch(id: number, entity: Partial<T>): Promise<T> {
+        const existing = await this.repository.findOneBy({id} as FindOptionsWhere<T>);
+        if (!existing) {
+            throw new EntityNotFoundError(this.repository.target, id);
+        }
+
+        const updated = {...existing, ...entity} as T;
+        updated.updatedAt = new Date();
+
+        return this.repository.save(updated);
     }
 
     /**

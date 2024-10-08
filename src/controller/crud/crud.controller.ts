@@ -4,13 +4,12 @@ import {AbstractEntity} from "../../db/abstract-entity.model";
 import {EntityNotFoundError, FindOptionsWhere} from "typeorm";
 import {Page} from "../../service/crud/page.type";
 import {ColumnMetadata} from "typeorm/metadata/ColumnMetadata";
-import {MissingRequiredPropertyError} from "../../error/missing-required-property.error";
 import {NotMatchingIdError} from "../../error/not-matching-id.error";
-import {UnknownPropertyError} from "../../error/unknown-property.error";
-import {PrimaryKeyUpdateError} from "../../error/primary-key-update-error";
 import {Delete, Get, Patch, Post, Put} from "../controller.decorators";
+import {InvalidBodyError} from "../../error/invalid-body.error";
 
 const DEFAULT_PAGE_SIZE = 10;
+const METADATA_COLUMNS = ['createdAt', 'updatedAt', 'deletedAt'];
 
 export abstract class CrudController<T extends AbstractEntity> {
 
@@ -29,15 +28,16 @@ export abstract class CrudController<T extends AbstractEntity> {
      */
     @Get('/')
     public async search(req: Request, res: Response): Promise<Response<Page<T> | null>> {
-        const criteria = this.getCriteriaFromQuery(req);
+        const criteria = this.getCriteriaFromQuery(req.query);
 
         const page = req.query.page ? parseInt(<string>req.query.page) : 1;
         const pageSize = req.query.pageSize ? parseInt(<string>req.query.pageSize) : DEFAULT_PAGE_SIZE;
 
         const result = await this.service.search(criteria, page, pageSize);
 
-        if (result.data.length === 0) {
-            return res.status(204);
+        if (!result) {
+            return res.status(204)
+                      .send();
         }
 
         return res.status(200)
@@ -81,14 +81,14 @@ export abstract class CrudController<T extends AbstractEntity> {
         const entity = req.body as T;
 
         try {
-            this.validateEntity(entity);
+            this.validateBody(entity);
 
             const created = await this.service.create(entity);
 
             return res.status(201)
                       .json(created);
         } catch (e) {
-            if (e instanceof MissingRequiredPropertyError || e instanceof UnknownPropertyError) {
+            if (e instanceof InvalidBodyError) {
                 return res.status(400)
                           .json({message: e.message});
             }
@@ -114,19 +114,24 @@ export abstract class CrudController<T extends AbstractEntity> {
                       .json({message: 'Invalid ID'});
         }
 
-        try {
-            this.validateEntity(entity);
-            const result = await this.service.update(+id, entity);
+        if (entity.id !== +id) {
+            return res.status(400)
+                      .json({message: 'ID in path does not match ID in body'});
+        }
 
-            if (!result) {
-                return res.status(404)
-                          .json({message: 'Entity not found'});
-            }
+        try {
+            this.validateBody(entity);
+            const result = await this.service.update(+id, entity);
 
             return res.status(200)
                       .json(result);
         } catch (e) {
-            if (e instanceof MissingRequiredPropertyError || e instanceof UnknownPropertyError || e instanceof NotMatchingIdError || e instanceof EntityNotFoundError) {
+            if (e instanceof EntityNotFoundError) {
+                return res.status(404)
+                          .json({message: e.message});
+            }
+
+            if (e instanceof InvalidBodyError || e instanceof NotMatchingIdError) {
                 return res.status(400)
                           .json({message: e.message});
             }
@@ -138,6 +143,8 @@ export abstract class CrudController<T extends AbstractEntity> {
 
     /**
      * Patch an entity
+     * Only updates the fields that are present in the request body
+     * Will ignore unknown properties
      *
      * @param req
      * @param res
@@ -152,14 +159,24 @@ export abstract class CrudController<T extends AbstractEntity> {
                       .json({message: 'Invalid ID'});
         }
 
+        if (entity.id) {
+            return res.status(400)
+                      .json({message: 'ID cannot be updated'});
+        }
+
         try {
-            this.validateEntity(entity, true);
-            const result = await this.service.update(+id, entity);
+            this.validateBody(entity, true);
+            const result = await this.service.patch(+id, entity);
 
             return res.status(200)
                       .json(result);
         } catch (e) {
-            if (e instanceof MissingRequiredPropertyError || e instanceof UnknownPropertyError || e instanceof PrimaryKeyUpdateError || e instanceof EntityNotFoundError) {
+            if (e instanceof EntityNotFoundError) {
+                return res.status(404)
+                          .json({message: e.message});
+            }
+
+            if (e instanceof InvalidBodyError) {
                 return res.status(400)
                           .json({message: e.message});
             }
@@ -201,6 +218,7 @@ export abstract class CrudController<T extends AbstractEntity> {
 
     /**
      * Get criteria from query parameters
+     * Will ignore unknown query parameters
      *
      * @param query
      * @private
@@ -210,7 +228,7 @@ export abstract class CrudController<T extends AbstractEntity> {
 
         for (const key in query) {
             if (!this.entityColumns.some(column => column.propertyName === key)) {
-                throw new UnknownPropertyError(key);
+                continue;
             }
 
             criteria[key as keyof T] = query[key] as T[keyof T];
@@ -220,27 +238,38 @@ export abstract class CrudController<T extends AbstractEntity> {
     }
 
     /**
-     * Validate an entity
+     * Validate a body
      *
-     * @param entity
-     * @param allowNull
+     * @param body
+     * @param allowNull If true, will allow missing properties
      * @private
      */
-    private validateEntity(entity: T, allowNull: boolean = false): void {
-        for (const [key, value] of Object.entries(entity)) {
+    private validateBody(body: T, allowNull: boolean = false): void {
+        const errors: string[] = [];
+
+        // Check if the entity has unknown properties
+        for (const key in body) {
             if (!this.entityColumns.some(column => column.propertyName === key)) {
-                throw new UnknownPropertyError(key);
+                errors.push(`${key} is not a valid property`);
             }
+        }
 
-            const column = this.entityColumns.find(column => column.propertyName === key);
+        if (!allowNull) {
+            const requiredColumns = this.entityColumns.filter(column => !column.isNullable && !column.isPrimary && !METADATA_COLUMNS.includes(column.propertyName));
+            for (const column of requiredColumns) {
+                if (!body[column.propertyName as keyof T]) {
+                    if (column.isPrimary) {
+                        errors.push(`${column.propertyName} is not allowed`);
+                        continue;
+                    }
 
-            if (column!.isPrimary) {
-                throw new PrimaryKeyUpdateError(key);
+                    errors.push(`${column.propertyName} is required`);
+                }
             }
+        }
 
-            if (!allowNull && value === null && !column!.isNullable) {
-                throw new MissingRequiredPropertyError(key);
-            }
+        if (errors.length > 0) {
+            throw new InvalidBodyError(...errors);
         }
     }
 }

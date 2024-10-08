@@ -1,16 +1,10 @@
 import {DataType, newDb} from "pg-mem";
 import {Car} from "./car.entity";
-import {DataSource} from "typeorm";
+import {DIDataSource} from "../../src/db/di-data-source";
 
-export class TestDataSource {
+export class DataSourceTestUtils {
 
-    static Instance: DataSource;
-
-    static async initialize(): Promise<void> {
-        if (TestDataSource.Instance) {
-            throw new Error('Data source already initialized');
-        }
-
+    static async setup(): Promise<DIDataSource> {
         const db = newDb({
             autoCreateForeignKeyIndices: true,
         });
@@ -32,13 +26,11 @@ export class TestDataSource {
             implementation: () => "test",
         });
 
-        TestDataSource.Instance = await db.adapters.createTypeormDataSource({
+        return db.adapters.createTypeormDataSource({
             type: 'postgres',
             entities: [Car],
             synchronize: true,
-        });
-
-        await TestDataSource.Instance.initialize()
+        }).initialize();
     }
 
 }

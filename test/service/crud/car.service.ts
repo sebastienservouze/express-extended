@@ -1,13 +1,13 @@
 import {CrudService} from "../../../src/service/crud/crud.service";
 import {Car} from "../../db/car.entity";
 import {Dependency} from "@nerisma/di"
-import {TestDataSource} from "../../db/test-data-source";
+import {DIDataSource} from "../../../src/db/di-data-source";
 
 @Dependency()
 export class CarService extends CrudService<Car> {
 
-    constructor() {
-        super(TestDataSource.Instance.getRepository(Car));
+    constructor(private readonly dataSource: DIDataSource) {
+        super(dataSource.getRepository(Car));
     }
 
 }

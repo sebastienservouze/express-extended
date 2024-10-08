@@ -1,36 +1,42 @@
 import {CarService} from "./car.service";
 import {Car} from "../../db/car.entity";
 import {EntityNotFoundError, Like} from "typeorm";
-import {TestDataSource} from "../../db/test-data-source";
+import {DataSourceTestUtils} from "../../db/data-source-test.utils";
 import {NotMatchingIdError} from "../../../src/error/not-matching-id.error";
+import {DIDataSource} from "../../../src/db/di-data-source";
 
 describe('CrudService', () => {
 
     let service: CarService;
+    let dataSource: DIDataSource;
 
     beforeAll(async () => {
-        await TestDataSource.initialize();
-        service = new CarService(TestDataSource.Instance);
+        dataSource = await DataSourceTestUtils.setup();
+        service = new CarService(dataSource);
     });
 
     afterEach(async () => {
-        await TestDataSource.Instance.getRepository(Car).clear();
+        await dataSource.getRepository(Car).clear();
     });
+
+    /*
+     * Search
+     */
 
     it('should find cars', async () => {
         const cars: Car[] = [];
         for (let i = 0; i < 10; i++) {
             cars.push(getCar(`Fiesta ${i}`));
         }
-        await TestDataSource.Instance.getRepository(Car).save(cars);
+        await dataSource.getRepository(Car).save(cars);
 
         const page = await service.search({}, 1, 5);
 
-        expect(page).toBeDefined();
-        expect(page.total).toBe(10);
-        expect(page.page).toBe(1);
-        expect(page.pageSize).toBe(5);
-        expect(page.data).toMatchObject(cars.slice(0, 5));
+        expect(page).not.toBeNull();
+        expect(page!.total).toBe(10);
+        expect(page!.page).toBe(1);
+        expect(page!.pageSize).toBe(5);
+        expect(page!.data).toMatchObject(cars.slice(0, 5));
     });
 
     it('should not find deleted cars', async () => {
@@ -38,19 +44,25 @@ describe('CrudService', () => {
         for (let i = 0; i < 10; i++) {
             cars.push(getCar(`Fiesta ${i}`));
         }
-        await TestDataSource.Instance.getRepository(Car).save(cars);
+        await dataSource.getRepository(Car).save(cars);
 
         const toDelete = cars[1];
         toDelete.deletedAt = new Date();
-        await TestDataSource.Instance.getRepository(Car).save(toDelete);
+        await dataSource.getRepository(Car).save(toDelete);
 
         const page = await service.search({}, 1, 5);
 
-        expect(page).toBeDefined();
-        expect(page.total).toBe(9);
-        expect(page.page).toBe(1);
-        expect(page.pageSize).toBe(5);
-        expect(page.data).not.toContainEqual(toDelete);
+        expect(page).not.toBeNull();
+        expect(page!.total).toBe(9);
+        expect(page!.page).toBe(1);
+        expect(page!.pageSize).toBe(5);
+        expect(page!.data).not.toContainEqual(toDelete);
+    });
+
+    it('should return null if no results', async () => {
+        const page = await service.search({model: 'DOES NOT EXISTS'}, 1, 5);
+
+        expect(page).toBeNull();
     });
 
     it('should find cars with criteria', async () => {
@@ -59,15 +71,15 @@ describe('CrudService', () => {
             cars.push(getCar(`Fiesta ${i}`));
             cars.push(getCar(`Focus ${i}`));
         }
-        await TestDataSource.Instance.getRepository(Car).save(cars);
+        await dataSource.getRepository(Car).save(cars);
 
         const page = await service.search({model: Like(`%Fiesta%`)}, 1, 5);
 
-        expect(page).toBeDefined();
-        expect(page.total).toBe(5);
-        expect(page.page).toBe(1);
-        expect(page.pageSize).toBe(5);
-        page.data.forEach((car, i) => {
+        expect(page).not.toBeNull();
+        expect(page!.total).toBe(5);
+        expect(page!.page).toBe(1);
+        expect(page!.pageSize).toBe(5);
+        page!.data.forEach((car, i) => {
             expect(car).toMatchObject(cars[i * 2])
             expect(car.createdAt).toBeDefined();
             expect(car.updatedAt).toBeDefined();
@@ -75,9 +87,13 @@ describe('CrudService', () => {
         });
     });
 
+    /*
+     * Consult
+     */
+
     it('should consult a car', async () => {
         const car = getCar();
-        const created = await TestDataSource.Instance.getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         const consulted = await service.consult(created.id);
 
@@ -88,17 +104,21 @@ describe('CrudService', () => {
         expect(consulted!.deletedAt).toBeNull();
     });
 
-    it('should not consult a deleted car', async () => {
+    it('should not find a deleted car', async () => {
         const car = getCar();
-        const created = await TestDataSource.Instance.getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         created.deletedAt = new Date();
-        await TestDataSource.Instance.getRepository(Car).save(created);
+        await dataSource.getRepository(Car).save(created);
 
         const consulted = await service.consult(created.id);
 
         expect(consulted).toBeNull();
     });
+
+    /*
+     * Create
+     */
 
     it('should create a car', async () => {
         const car = getCar();
@@ -113,9 +133,13 @@ describe('CrudService', () => {
         expect(created.deletedAt).toBeNull();
     });
 
+    /*
+     * Update
+     */
+
     it('should update a car', async () => {
         const car = getCar();
-        const created = await TestDataSource.Instance.getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         created.model = 'Focus';
         const updated = await service.update(created.id, created);
@@ -142,7 +166,7 @@ describe('CrudService', () => {
 
     it('should throw error when updating with different id & entity id', async () => {
         const car = getCar();
-        const created = await TestDataSource.Instance.getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         created.model = 'Focus';
 
@@ -151,13 +175,17 @@ describe('CrudService', () => {
             .toThrow(new NotMatchingIdError(created.id, 999));
     });
 
+    /*
+     * Delete
+     */
+
     it('should delete a car', async () => {
         const car = getCar();
-        const created = await TestDataSource.Instance.getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         await service.delete(created.id);
 
-        const deleted = await TestDataSource.Instance.getRepository(Car).findOneBy({id: created.id});
+        const deleted = await dataSource.getRepository(Car).findOneBy({id: created.id});
         expect(deleted).toBeDefined();
         expect(deleted!.deletedAt).toBeDefined();
     });
@@ -169,7 +197,7 @@ describe('CrudService', () => {
     });
 
     afterAll(async () => {
-        await TestDataSource.Instance.destroy();
+        await dataSource.destroy();
     });
 
 });
