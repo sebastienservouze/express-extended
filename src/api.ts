@@ -3,7 +3,6 @@ import {ControllerMetadataKeys} from "./controller/controller-metadata-keys.enum
 import {Container, Type} from "@nerisma/di";
 import {Endpoint} from "./controller/endpoint.model";
 import {DIDataSource} from "./db/di-data-source";
-import {CrudController} from "./controller/crud/crud.controller";
 import http from "node:http";
 import pino from "pino";
 import {DataSource} from "typeorm";

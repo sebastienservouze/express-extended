@@ -1,5 +1,4 @@
 import {Dependency} from "@nerisma/di";
-import {DataSourceOptions} from "typeorm/data-source/DataSourceOptions";
 import {DataSource} from "typeorm";
 
 /**

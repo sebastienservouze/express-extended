@@ -1,7 +1,7 @@
 {
     "name": "@nerisma/express-api",
     "version": "1.0.0",
-    "main": "src/public-api.ts",
+    "main": "dist/public-api.js",
     "types": "src/public-api.d.ts",
     "publishConfig": {
         "access": "public"
