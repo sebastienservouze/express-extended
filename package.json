@@ -1,8 +1,8 @@
 {
     "name": "@nerisma/express-api",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "main": "dist/public-api.js",
-    "types": "src/public-api.d.ts",
+    "types": "dist/public-api.d.ts",
     "publishConfig": {
         "access": "public"
     },
@@ -41,11 +41,13 @@
         "typescript": "^5.6.2"
     },
     "dependencies": {
-        "@nerisma/di": "^1.0.7",
+        "@nerisma/di": "^1.0.8"
+    },
+    "peerDependencies": {
+        "reflect-metadata": "^0.2.2",
+        "typeorm": "^0.3.20",
         "express": "^4.21.0",
         "pg": "^8.13.0",
-        "pino": "^9.4.0",
-        "reflect-metadata": "^0.2.2",
-        "typeorm": "^0.3.20"
+        "pino": "^9.4.0"
     }
 }

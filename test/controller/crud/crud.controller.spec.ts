@@ -5,7 +5,8 @@ import {EntityNotFoundError} from "typeorm";
 import {Api} from "../../../src/api";
 import {CarController} from "./car.controller";
 import {TestDataSource} from "../../db/test-data.source";
-import {Container} from "../../../../di";
+import {Container} from "@nerisma/di";
+
 
 describe('CrudController', () => {
 
@@ -161,10 +162,12 @@ describe('CrudController', () => {
         const body = await response.json();
 
         expect(response.status).toEqual(400);
-        expect(body).toEqual({message: 'Invalid body:\n' +
+        expect(body).toEqual({
+            message: 'Invalid body:\n' +
                 '- model is required\n' +
                 '- wheels is required\n' +
-                '- releaseDate is required'});
+                '- releaseDate is required'
+        });
     });
 
     /*
@@ -233,14 +236,18 @@ describe('CrudController', () => {
         const body = await response.json();
 
         expect(response.status).toEqual(400);
-        expect(body).toEqual({message: 'Invalid body:\n' +
-                '- model is required'});
+        expect(body).toEqual({
+            message: 'Invalid body:\n' +
+                '- model is required'
+        });
     });
 
     it('should return NOT FOUND if entity is not found', async () => {
         const car = getCar('model');
         car.id = 1;
-        jest.spyOn(carService, 'update').mockImplementation(() => {throw new EntityNotFoundError(Car, 1)});
+        jest.spyOn(carService, 'update').mockImplementation(() => {
+            throw new EntityNotFoundError(Car, 1)
+        });
 
         const response = await fetch('http://localhost:3000/car/1', {
             method: 'PUT',
@@ -317,14 +324,18 @@ describe('CrudController', () => {
         const body = await response.json();
 
         expect(response.status).toEqual(400);
-        expect(body).toEqual({message: 'Invalid body:\n' +
+        expect(body).toEqual({
+            message: 'Invalid body:\n' +
                 '- notAField is not a valid property\n' +
-                '- notAnotherField is not a valid property'});
+                '- notAnotherField is not a valid property'
+        });
     });
 
     it('should return NOT FOUND if entity is not found', async () => {
         const car = getCar('model');
-        jest.spyOn(carService, 'patch').mockImplementation(() => {throw new EntityNotFoundError(Car, 1)});
+        jest.spyOn(carService, 'patch').mockImplementation(() => {
+            throw new EntityNotFoundError(Car, 1)
+        });
 
         const response = await fetch('http://localhost:3000/car/1', {
             method: 'PATCH',
@@ -363,7 +374,9 @@ describe('CrudController', () => {
     });
 
     it('should return NOT FOUND if entity is not found', async () => {
-        jest.spyOn(carService, 'delete').mockImplementation(() => {throw new EntityNotFoundError(Car, 1)});
+        jest.spyOn(carService, 'delete').mockImplementation(() => {
+            throw new EntityNotFoundError(Car, 1)
+        });
 
         const response = await fetch('http://localhost:3000/car/1', {
             method: 'DELETE'
