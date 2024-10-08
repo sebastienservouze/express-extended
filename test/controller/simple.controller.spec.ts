@@ -1,16 +1,13 @@
-import express, {Express} from "express";
 import {SimpleController} from "./simple.controller";
-import {ControllerUtils} from "../../src/controller/controller.utils";
-import * as http from "node:http";
+import {Api} from "../../src/api";
 
 describe('SimpleController', () => {
 
-    const app: Express = express();
-    let server: http.Server;
+    const api = new Api('SimpleController');
 
     beforeAll(() => {
-        ControllerUtils.register(app, SimpleController);
-        server = app.listen(3000);
+        api.registerControllers(SimpleController);
+        api.start(3000);
     });
 
     it('should register GET endpoint', async () => {
@@ -43,8 +40,8 @@ describe('SimpleController', () => {
         expect(body).toEqual({message: 'Hello, 123!'});
     });
 
-    afterAll(() => {
-        server.close();
+    afterAll((done) => {
+        api.stop(done);
     });
 
 });

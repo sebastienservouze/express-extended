@@ -1,20 +1,15 @@
-import http from "node:http";
-import {CarController} from "./car.controller";
 import {CarService} from "../../service/crud/car.service";
-import express, {Express} from "express";
-import {ControllerUtils} from "../../../src/controller/controller.utils";
 import {DataSourceTestUtils} from "../../db/data-source-test.utils";
 import {Container} from "../../../../di";
 import {Car} from "../../db/car.entity";
 import {Page} from "../../../src/service/crud/page.type";
-import exp = require("node:constants");
 import {EntityNotFoundError} from "typeorm";
-
+import {Api} from "../../../src/api";
+import {CarController} from "./car.controller";
 
 describe('CrudController', () => {
 
-    const app: Express = express();
-    let server: http.Server;
+    const api = new Api('CrudController');
     let carService: CarService;
 
     beforeAll(async () => {
@@ -22,10 +17,9 @@ describe('CrudController', () => {
         carService = new CarService(dataSource);
         Container.register(carService);
 
-        app.use(express.json());
-
-        ControllerUtils.register(app, CarController);
-        server = app.listen(3000);
+        api.setDataSource(dataSource);
+        api.registerControllers(CarController);
+        await api.start(3000);
     });
 
     /*
@@ -383,9 +377,9 @@ describe('CrudController', () => {
         jest.restoreAllMocks();
     });
 
-    afterAll(() => {
-        server.close();
-    })
+    afterAll((done) => {
+        api.stop(done);
+    });
 });
 
 function getExpectedCar(id: number): Car {
