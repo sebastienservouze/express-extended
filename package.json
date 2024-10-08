@@ -1,11 +1,13 @@
 {
     "name": "@nerisma/express-api",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "src/public-api.ts",
+    "types": "src/public-api.d.ts",
+    "private": false,
     "scripts": {
         "test": "jest",
         "generate-exports": "node ./generate-exports.js src src/public-api.ts",
-        "build": "generate-exports.js && npx tsc",
+        "build": "npm run generate-exports && npx tsc",
         "check-exports": "attw --pack .",
         "ci": "npm run build && npm run check-exports && npm run test",
         "prepublishOnly": "npm run ci",
