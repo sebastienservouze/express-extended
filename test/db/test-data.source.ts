@@ -1,10 +1,10 @@
 import {DataType, newDb} from "pg-mem";
 import {Car} from "./car.entity";
-import {DIDataSource} from "../../src/db/di-data-source";
+import {DataSource} from "typeorm";
 
-export class DataSourceTestUtils {
+export class TestDataSource {
 
-    static async setup(): Promise<DIDataSource> {
+    static get(): DataSource {
         const db = newDb({
             autoCreateForeignKeyIndices: true,
         });
@@ -30,7 +30,7 @@ export class DataSourceTestUtils {
             type: 'postgres',
             entities: [Car],
             synchronize: true,
-        }).initialize();
+        });
     }
 
 }

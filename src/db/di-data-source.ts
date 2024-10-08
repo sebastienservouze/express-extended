@@ -1,4 +1,4 @@
-import {Dependency} from "../../../di";
+import {Dependency} from "@nerisma/di";
 import {DataSourceOptions} from "typeorm/data-source/DataSourceOptions";
 import {DataSource} from "typeorm";
 
@@ -6,10 +6,14 @@ import {DataSource} from "typeorm";
  * This is just a wrapper to allow dependency injection
  */
 @Dependency()
-export class DIDataSource extends DataSource {
+export class DIDataSource {
 
-    constructor(options: DataSourceOptions) {
-        super(options);
+    constructor(private readonly dataSource: DataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public get(): DataSource {
+        return this.dataSource;
     }
 
 }

@@ -3,10 +3,10 @@ import {ControllerMetadataKeys} from "./controller/controller-metadata-keys.enum
 import {Container, Type} from "@nerisma/di";
 import {Endpoint} from "./controller/endpoint.model";
 import {DIDataSource} from "./db/di-data-source";
-import {DataSourceOptions} from "typeorm/data-source/DataSourceOptions";
 import {CrudController} from "./controller/crud/crud.controller";
 import http from "node:http";
 import pino from "pino";
+import {DataSource} from "typeorm";
 
 export class Api {
 
@@ -14,6 +14,8 @@ export class Api {
     private server?: http.Server;
     private dataSource?: DIDataSource;
     private logger: pino.Logger;
+
+    private controllers: Type<any>[] = [];
 
     constructor(name: string) {
         this.logger = pino({
@@ -27,28 +29,11 @@ export class Api {
     }
 
     public async start(port: number) {
-        if (this.dataSource && !this.dataSource.isInitialized) {
-            await this.dataSource.initialize();
+        if (this.dataSource?.get() && !this.dataSource.get().isInitialized) {
+            await this.dataSource.get().initialize();
         }
 
-        this.server = this.expressApp.listen(port, () => {
-            this.logger.info(`[API] Server started on port ${port}`);
-        });
-    }
-
-    public async stop(callback?: () => void) {
-        if (this.server) {
-            this.server.close(callback);
-            this.logger.info('[API] Server stopped');
-        }
-    }
-
-    public registerControllers(...controllers: Type<any>[]) {
-        controllers.forEach(controller => {
-            if (controller === CrudController && !this.dataSource) {
-                throw new Error('Datasource not defined');
-            }
-
+        this.controllers.forEach(controller => {
             const instance = Container.resolve(controller);
 
             const basePath = Reflect.getMetadata(ControllerMetadataKeys.BASE_PATH, controller);
@@ -64,15 +49,26 @@ export class Api {
                 this.logger.info(`[DI] Registered ${endpoint.verb} ${basePath}${endpoint.path}`);
             });
         });
+
+        this.server = this.expressApp.listen(port, () => {
+            this.logger.info(`[API] Server started on port ${port}`);
+        });
     }
 
-    public setupDataSource(options: DataSourceOptions) {
-        const dataSource = new DIDataSource(options);
-        Container.register(dataSource);
+    public async stop(callback?: () => void) {
+        if (this.server) {
+            this.server.close(callback);
+            this.logger.info('[API] Server stopped');
+        }
     }
 
-    public setDataSource(dataSource: DIDataSource) {
-        this.dataSource = dataSource;
+    public registerControllers(...controllers: Type<any>[]) {
+        this.controllers = controllers;
+    }
+
+    public registerDataSource(dataSource: DataSource) {
+        this.dataSource = new DIDataSource(dataSource);
+        Container.register(this.dataSource);
     }
 
     public setupLogMiddleware() {

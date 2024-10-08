@@ -6,8 +6,8 @@ import {DIDataSource} from "../../../src/db/di-data-source";
 @Dependency()
 export class CarService extends CrudService<Car> {
 
-    constructor(private readonly dataSource: DIDataSource) {
-        super(dataSource.getRepository(Car));
+    constructor(readonly dataSource: DIDataSource) {
+        super(dataSource.get().getRepository(Car));
     }
 
 }

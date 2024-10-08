@@ -1,11 +1,11 @@
 import {CarService} from "../../service/crud/car.service";
-import {DataSourceTestUtils} from "../../db/data-source-test.utils";
-import {Container} from "../../../../di";
 import {Car} from "../../db/car.entity";
 import {Page} from "../../../src/service/crud/page.type";
 import {EntityNotFoundError} from "typeorm";
 import {Api} from "../../../src/api";
 import {CarController} from "./car.controller";
+import {TestDataSource} from "../../db/test-data.source";
+import {Container} from "../../../../di";
 
 describe('CrudController', () => {
 
@@ -13,12 +13,13 @@ describe('CrudController', () => {
     let carService: CarService;
 
     beforeAll(async () => {
-        const dataSource = await DataSourceTestUtils.setup();
-        carService = new CarService(dataSource);
-        Container.register(carService);
+        const dataSource = TestDataSource.get();
 
-        api.setDataSource(dataSource);
+        api.registerDataSource(dataSource);
         api.registerControllers(CarController);
+
+        carService = Container.resolve(CarService);
+
         await api.start(3000);
     });
 

@@ -16,7 +16,7 @@ export abstract class CrudController<T extends AbstractEntity> {
     private entityColumns: ColumnMetadata[];
 
     protected constructor(private readonly service: CrudService<T>) {
-        this.entityColumns = service.getRepository().metadata.columns;
+        this.entityColumns = service.repository.metadata.columns;
     }
 
     /**

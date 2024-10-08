@@ -5,7 +5,7 @@ import {NotMatchingIdError} from "../../error/not-matching-id.error";
 
 export abstract class CrudService<T extends AbstractEntity> {
 
-    protected constructor(protected readonly repository: Repository<T>) {
+    protected constructor(public readonly repository: Repository<T>) {
     }
 
     /**
@@ -112,12 +112,5 @@ export abstract class CrudService<T extends AbstractEntity> {
 
         entity.deletedAt = new Date();
         await this.repository.save(entity);
-    }
-
-    /**
-     * Get the repository
-     */
-    getRepository(): Repository<T> {
-        return this.repository;
     }
 }
