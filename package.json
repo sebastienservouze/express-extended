@@ -3,7 +3,9 @@
     "version": "1.0.0",
     "main": "src/public-api.ts",
     "types": "src/public-api.d.ts",
-    "private": false,
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "test": "jest",
         "generate-exports": "node ./generate-exports.js src src/public-api.ts",
