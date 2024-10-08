@@ -4,7 +4,7 @@ import {EntityNotFoundError, Like} from "typeorm";
 import {TestDataSource} from "../../db/test-data.source";
 import {NotMatchingIdError} from "../../../src/error/not-matching-id.error";
 import {DIDataSource} from "../../../src/db/di-data-source";
-import {Container} from "../../../../di";
+import {Container} from "@nerisma/di";
 
 describe('CrudService', () => {
 

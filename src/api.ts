@@ -46,7 +46,7 @@ export class Api {
             endpoints.forEach((endpoint: Endpoint) => {
                 const path = `${basePath}${endpoint.path}`;
                 this.expressApp[endpoint.verb.toLowerCase() as keyof express.Application](path, endpoint.handler.bind(instance));
-                this.logger.info(`[DI] Registered ${endpoint.verb} ${basePath}${endpoint.path}`);
+                this.logger.info(`[API] Registered ${endpoint.verb} ${basePath}${endpoint.path}`);
             });
         });
 
