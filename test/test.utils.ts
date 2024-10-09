@@ -1,10 +1,10 @@
 import {DataType, newDb} from "pg-mem";
-import {Car} from "./car.entity";
+import {Container, MetadataKeys} from "@nerisma/di";
 import {DataSource} from "typeorm";
 
-export class TestDataSource {
+export class TestUtils {
 
-    static get(): DataSource {
+    public static async initializeDataSource(...entities: any[]): Promise<void> {
         const db = newDb({
             autoCreateForeignKeyIndices: true,
         });
@@ -26,11 +26,18 @@ export class TestDataSource {
             implementation: () => "test",
         });
 
-        return db.adapters.createTypeormDataSource({
+        const dataSource = db.adapters.createTypeormDataSource({
             type: 'postgres',
-            entities: [Car],
+            entities: entities,
             synchronize: true,
         });
-    }
 
+        await dataSource.initialize();
+
+        // Allow the container to resolve the DataSource
+        Reflect.defineMetadata(MetadataKeys.IsDependency, true, DataSource);
+
+        // Register the DataSource in the container
+        Container.set(dataSource);
+    }
 }

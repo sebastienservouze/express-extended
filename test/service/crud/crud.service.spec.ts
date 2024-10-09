@@ -1,27 +1,23 @@
 import {CarService} from "./car.service";
 import {Car} from "../../db/car.entity";
-import {EntityNotFoundError, Like} from "typeorm";
-import {TestDataSource} from "../../db/test-data.source";
+import {DataSource, EntityNotFoundError, Like} from "typeorm";
 import {NotMatchingIdError} from "../../../src/error/not-matching-id.error";
-import {DIDataSource} from "../../../src/db/di-data-source";
 import {Container} from "@nerisma/di";
+import {TestUtils} from "../../test.utils";
 
 describe('CrudService', () => {
 
     let service: CarService;
-    let dataSource: DIDataSource;
+    let dataSource: DataSource;
 
     beforeAll(async () => {
-        dataSource = new DIDataSource(TestDataSource.get());
-        await dataSource.get().initialize();
-
-        Container.register(dataSource);
-        
-        service = Container.resolve(CarService);
+        await TestUtils.initializeDataSource(Car);
+        dataSource = Container.get(DataSource);
+        service = Container.get(CarService);
     });
 
     afterEach(async () => {
-        await dataSource.get().getRepository(Car).clear();
+        await dataSource.getRepository(Car).clear();
     });
 
     /*
@@ -33,7 +29,7 @@ describe('CrudService', () => {
         for (let i = 0; i < 10; i++) {
             cars.push(getCar(`Fiesta ${i}`));
         }
-        await dataSource.get().getRepository(Car).save(cars);
+        await dataSource.getRepository(Car).save(cars);
 
         const page = await service.search({}, 1, 5);
 
@@ -49,11 +45,11 @@ describe('CrudService', () => {
         for (let i = 0; i < 10; i++) {
             cars.push(getCar(`Fiesta ${i}`));
         }
-        await dataSource.get().getRepository(Car).save(cars);
+        await dataSource.getRepository(Car).save(cars);
 
         const toDelete = cars[1];
         toDelete.deletedAt = new Date();
-        await dataSource.get().getRepository(Car).save(toDelete);
+        await dataSource.getRepository(Car).save(toDelete);
 
         const page = await service.search({}, 1, 5);
 
@@ -76,7 +72,7 @@ describe('CrudService', () => {
             cars.push(getCar(`Fiesta ${i}`));
             cars.push(getCar(`Focus ${i}`));
         }
-        await dataSource.get().getRepository(Car).save(cars);
+        await dataSource.getRepository(Car).save(cars);
 
         const page = await service.search({model: Like(`%Fiesta%`)}, 1, 5);
 
@@ -98,7 +94,7 @@ describe('CrudService', () => {
 
     it('should consult a car', async () => {
         const car = getCar();
-        const created = await dataSource.get().getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         const consulted = await service.consult(created.id);
 
@@ -111,10 +107,10 @@ describe('CrudService', () => {
 
     it('should not find a deleted car', async () => {
         const car = getCar();
-        const created = await dataSource.get().getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         created.deletedAt = new Date();
-        await dataSource.get().getRepository(Car).save(created);
+        await dataSource.getRepository(Car).save(created);
 
         const consulted = await service.consult(created.id);
 
@@ -144,7 +140,7 @@ describe('CrudService', () => {
 
     it('should update a car', async () => {
         const car = getCar();
-        const created = await dataSource.get().getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         created.model = 'Focus';
         const updated = await service.update(created.id, created);
@@ -171,7 +167,7 @@ describe('CrudService', () => {
 
     it('should throw error when updating with different id & entity id', async () => {
         const car = getCar();
-        const created = await dataSource.get().getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         created.model = 'Focus';
 
@@ -186,11 +182,11 @@ describe('CrudService', () => {
 
     it('should delete a car', async () => {
         const car = getCar();
-        const created = await dataSource.get().getRepository(Car).save(car);
+        const created = await dataSource.getRepository(Car).save(car);
 
         await service.delete(created.id);
 
-        const deleted = await dataSource.get().getRepository(Car).findOneBy({id: created.id});
+        const deleted = await dataSource.getRepository(Car).findOneBy({id: created.id});
         expect(deleted).toBeDefined();
         expect(deleted!.deletedAt).toBeDefined();
     });
@@ -202,7 +198,7 @@ describe('CrudService', () => {
     });
 
     afterAll(async () => {
-        await dataSource.get().destroy();
+        await dataSource.destroy();
     });
 
 });

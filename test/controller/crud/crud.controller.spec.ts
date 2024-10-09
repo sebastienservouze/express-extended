@@ -2,26 +2,29 @@ import {CarService} from "../../service/crud/car.service";
 import {Car} from "../../db/car.entity";
 import {Page} from "../../../src/service/crud/page.type";
 import {EntityNotFoundError} from "typeorm";
-import {Api} from "../../../src/api";
+import {TestUtils} from "../../test.utils";
+import express from "express";
+import {Server} from "node:http";
 import {CarController} from "./car.controller";
-import {TestDataSource} from "../../db/test-data.source";
 import {Container} from "@nerisma/di";
-
+import {Controllers} from "../../../src/controller/controllers";
 
 describe('CrudController', () => {
 
-    const api = new Api('CrudController');
+    let api: Server;
     let carService: CarService;
 
     beforeAll(async () => {
-        const dataSource = TestDataSource.get();
+        await TestUtils.initializeDataSource(Car);
+        const app = express();
+        app.use(express.json());
 
-        api.registerDataSource(dataSource);
-        api.registerControllers(CarController);
+        Controllers.register(app, [CarController]);
+        carService = Container.get(CarService);
 
-        carService = Container.resolve(CarService);
-
-        await api.start(3000);
+        await new Promise((resolve) => {
+            api = app.listen(3000, () => resolve(api))
+        });
     });
 
     /*
@@ -392,7 +395,7 @@ describe('CrudController', () => {
     });
 
     afterAll((done) => {
-        api.stop(done);
+        api.close(done);
     });
 });
 

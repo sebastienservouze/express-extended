@@ -1,6 +1,6 @@
 {
     "name": "@nerisma/express-api",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "main": "dist/public-api.js",
     "types": "dist/public-api.d.ts",
     "publishConfig": {
@@ -41,7 +41,7 @@
         "typescript": "^5.6.2"
     },
     "dependencies": {
-        "@nerisma/di": "^1.0.9"
+        "@nerisma/di": "^1.0.10"
     },
     "peerDependencies": {
         "reflect-metadata": "^0.2.2",

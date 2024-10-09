@@ -1,13 +1,20 @@
+import {Server} from "node:http";
+import express from "express";
 import {SimpleController} from "./simple.controller";
-import {Api} from "../../src/api";
+import {Controllers} from "../../src/controller/controllers";
 
 describe('SimpleController', () => {
 
-    const api = new Api('SimpleController');
+    let api: Server;
 
-    beforeAll(() => {
-        api.registerControllers(SimpleController);
-        api.start(3000);
+    beforeAll(async () => {
+        const app = express();
+
+        Controllers.register(app, [SimpleController]);
+
+        await new Promise((resolve) => {
+            api = app.listen(3000, () => resolve(api))
+        });
     });
 
     it('should register GET endpoint', async () => {
@@ -41,7 +48,7 @@ describe('SimpleController', () => {
     });
 
     afterAll((done) => {
-        api.stop(done);
+        api.close(done);
     });
 
 });
