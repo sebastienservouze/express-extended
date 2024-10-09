@@ -1,10 +1,10 @@
-import {DataType, newDb} from "pg-mem";
-import {Container, MetadataKeys} from "@nerisma/di";
 import {DataSource} from "typeorm";
+import {DataType, newDb} from "pg-mem";
+import {Type} from "@nerisma/di";
 
-export class TestUtils {
+export class DataSourceUtils {
 
-    public static async initializeDataSource(...entities: any[]): Promise<void> {
+    public static getInMemoryPostgresDataSource(entities: Type<any>[]): DataSource {
         const db = newDb({
             autoCreateForeignKeyIndices: true,
         });
@@ -26,18 +26,11 @@ export class TestUtils {
             implementation: () => "test",
         });
 
-        const dataSource = db.adapters.createTypeormDataSource({
+        return db.adapters.createTypeormDataSource({
             type: 'postgres',
             entities: entities,
             synchronize: true,
         });
-
-        await dataSource.initialize();
-
-        // Allow the container to resolve the DataSource
-        Reflect.defineMetadata(MetadataKeys.IsDependency, true, DataSource);
-
-        // Register the DataSource in the container
-        Container.set(dataSource);
     }
+
 }

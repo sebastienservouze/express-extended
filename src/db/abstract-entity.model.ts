@@ -1,6 +1,6 @@
 import {Column, PrimaryGeneratedColumn} from "typeorm";
 
-export abstract class AbstractEntity {
+export abstract class MetadataEntity {
 
     @PrimaryGeneratedColumn()
     id!: number;

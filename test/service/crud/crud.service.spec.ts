@@ -1,9 +1,9 @@
 import {CarService} from "./car.service";
-import {Car} from "../../db/car.entity";
 import {DataSource, EntityNotFoundError, Like} from "typeorm";
 import {NotMatchingIdError} from "../../../src/error/not-matching-id.error";
 import {Container} from "@nerisma/di";
-import {TestUtils} from "../../test.utils";
+import {DataSourceUtils} from "../../../src/db/data-source.utils";
+import {Car} from "../../entity/car.entity";
 
 describe('CrudService', () => {
 
@@ -11,9 +11,11 @@ describe('CrudService', () => {
     let dataSource: DataSource;
 
     beforeAll(async () => {
-        await TestUtils.initializeDataSource(Car);
-        dataSource = Container.get(DataSource);
-        service = Container.get(CarService);
+        dataSource = DataSourceUtils.getInMemoryPostgresDataSource([Car]);
+        await dataSource.initialize();
+        Container.inject(dataSource, true);
+
+        service = Container.resolve(CarService);
     });
 
     afterEach(async () => {

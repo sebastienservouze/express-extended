@@ -10,7 +10,7 @@ describe('SimpleController', () => {
     beforeAll(async () => {
         const app = express();
 
-        Controllers.register(app, [SimpleController]);
+        Controllers.use(app, [SimpleController]);
 
         await new Promise((resolve) => {
             api = app.listen(3000, () => resolve(api))

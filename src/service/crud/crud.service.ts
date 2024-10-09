@@ -1,9 +1,9 @@
 import {EntityNotFoundError, FindOptionsWhere, IsNull, Repository} from "typeorm";
-import {AbstractEntity} from "../../db/abstract-entity.model";
+import {MetadataEntity} from "../../db/abstract-entity.model";
 import {Page} from "./page.type";
 import {NotMatchingIdError} from "../../error/not-matching-id.error";
 
-export abstract class CrudService<T extends AbstractEntity> {
+export abstract class CrudService<T extends MetadataEntity> {
 
     protected constructor(public readonly repository: Repository<T>) {
     }

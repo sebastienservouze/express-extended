@@ -1,5 +1,5 @@
 import {CrudService} from "../../../src/service/crud/crud.service";
-import {Car} from "../../db/car.entity";
+import {Car} from "../.././entity/car.entity";
 import {Dependency} from "@nerisma/di";
 import {DataSource} from "typeorm";
 

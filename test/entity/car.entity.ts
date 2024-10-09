@@ -1,8 +1,8 @@
 import {Column, Entity} from "typeorm";
-import {AbstractEntity} from "../../src/db/abstract-entity.model";
+import {MetadataEntity} from "../../src/db/abstract-entity.model";
 
 @Entity()
-export class Car extends AbstractEntity {
+export class Car extends MetadataEntity {
 
     @Column()
     model!: string;
