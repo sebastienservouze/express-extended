@@ -5,6 +5,7 @@ export * from './controller/crud/crud.controller';
 export * from './controller/endpoint.model';
 export * from './controller/http-verb.enum';
 export * from './db/abstract-entity.model';
+export * from './db/data-source.utils';
 export * from './error/invalid-body.error';
 export * from './error/not-matching-id.error';
 export * from './service/crud/crud.service';

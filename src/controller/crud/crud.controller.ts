@@ -7,17 +7,15 @@ import {ColumnMetadata} from "typeorm/metadata/ColumnMetadata";
 import {NotMatchingIdError} from "../../error/not-matching-id.error";
 import {Delete, Get, Patch, Post, Put} from "../controller.decorators";
 import {InvalidBodyError} from "../../error/invalid-body.error";
-import {Controller} from "../controller";
 
 const DEFAULT_PAGE_SIZE = 10;
 const METADATA_COLUMNS = ['createdAt', 'updatedAt', 'deletedAt'];
 
-export abstract class CrudController<T extends MetadataEntity> extends Controller {
+export abstract class CrudController<T extends MetadataEntity> {
 
     private entityColumns: ColumnMetadata[];
 
     protected constructor(private readonly service: CrudService<T>) {
-        super();
         this.entityColumns = service.repository.metadata.columns;
     }
 
