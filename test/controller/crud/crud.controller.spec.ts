@@ -1,13 +1,11 @@
 import {CarService} from "../../service/crud/car.service";
-import {Car} from "../.././entity/car.entity";
 import {Page} from "../../../src/service/crud/page.type";
 import {EntityNotFoundError} from "typeorm";
-import express from "express";
 import {Server} from "node:http";
 import {CarController} from "./car.controller";
 import {Container} from "@nerisma/di";
-import {Controllers} from "../../../src/controller/controllers";
-import {DataSourceUtils} from "../../../src/db/data-source.utils";
+import {Car} from "../../entity/car.entity";
+import {ExpressApiDb} from "../../../src/express-api-db";
 
 describe('CrudController', () => {
 
@@ -15,13 +13,8 @@ describe('CrudController', () => {
     let carService: CarService;
 
     beforeAll(async () => {
-        const dataSource = await DataSourceUtils.getInMemoryPostgresDataSource([Car]).initialize();
-        Container.inject(dataSource, true);
+        const app = await ExpressApiDb.setup([Car], [CarController]);
 
-        const app = express();
-        app.use(express.json());
-
-        Controllers.use(app, [CarController]);
         carService = Container.resolve(CarService);
 
         await new Promise((resolve) => {

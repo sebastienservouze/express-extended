@@ -1,12 +1,12 @@
 import {CrudService} from "../../../src/service/crud/crud.service";
-import {Car} from "../.././entity/car.entity";
 import {Dependency} from "@nerisma/di";
 import {DataSource} from "typeorm";
+import {Car} from "../../entity/car.entity";
 
 @Dependency()
 export class CarService extends CrudService<Car> {
 
-    constructor(readonly dataSource: DataSource) {
+    constructor(dataSource: DataSource) {
         super(dataSource.getRepository(Car));
     }
 

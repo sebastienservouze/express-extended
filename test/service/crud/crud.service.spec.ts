@@ -36,9 +36,9 @@ describe('CrudService', () => {
         const page = await service.search({}, 1, 5);
 
         expect(page).not.toBeNull();
-        expect(page!.total).toBe(10);
-        expect(page!.page).toBe(1);
-        expect(page!.pageSize).toBe(5);
+        expect(page!.total).toEqual(10);
+        expect(page!.page).toEqual(1);
+        expect(page!.pageSize).toEqual(5);
         expect(page!.data).toMatchObject(cars.slice(0, 5));
     });
 
@@ -56,9 +56,9 @@ describe('CrudService', () => {
         const page = await service.search({}, 1, 5);
 
         expect(page).not.toBeNull();
-        expect(page!.total).toBe(9);
-        expect(page!.page).toBe(1);
-        expect(page!.pageSize).toBe(5);
+        expect(page!.total).toEqual(9);
+        expect(page!.page).toEqual(1);
+        expect(page!.pageSize).toEqual(5);
         expect(page!.data).not.toContainEqual(toDelete);
     });
 
@@ -79,9 +79,9 @@ describe('CrudService', () => {
         const page = await service.search({model: Like(`%Fiesta%`)}, 1, 5);
 
         expect(page).not.toBeNull();
-        expect(page!.total).toBe(5);
-        expect(page!.page).toBe(1);
-        expect(page!.pageSize).toBe(5);
+        expect(page!.total).toEqual(5);
+        expect(page!.page).toEqual(1);
+        expect(page!.pageSize).toEqual(5);
         page!.data.forEach((car, i) => {
             expect(car).toMatchObject(cars[i * 2])
             expect(car.createdAt).toBeDefined();

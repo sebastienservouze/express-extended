@@ -1,48 +1,43 @@
-import express from "express";
-import {Controllers} from "../src/controller/controllers";
-import {CarController} from "../test/controller/crud/car.controller";
-import {MetadataEntity} from "../src/db/abstract-entity.model";
-import {Type} from "@nerisma/di";
+import "reflect-metadata";
+import {ExpressApiDb} from "../src/express-api-db";
 import {Car} from "../test/entity/car.entity";
-import {DataSourceUtils} from "../src/db/data-source.utils";
+import {CarController} from "../test/controller/crud/car.controller";
 
-// List controllers & entities
-const entities: Type<MetadataEntity>[] = [Car]
-const controllers: Type<any>[] = [CarController]
-
-async function main() {
-    // Setup express
-    const app = express();
-    app.use(express.json());
-
-    // Initialize datasource
-    await DataSourceUtils.getInMemoryPostgresDataSource(entities).initialize();
-
-    // Bind controllers to express routes
-    Controllers.use(app, controllers);
+async function server() {
+    const app = await ExpressApiDb.setup([Car], [CarController]);
 
     // Start the server
-    app.listen(3000, async () => {
+    const server = app.listen(3000, async () => {
         console.log('Server is running on port 3000');
 
-        // Create a car
-        await fetch('http://localhost:3000/car', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: 'Toyota',
-                wheels: 4,
-                releaseDate: new Date(),
-            }),
-        });
+        // Simulate a client
+        await client();
 
-        // Consult the car
-        const response = await fetch('http://localhost:3000/car/1');
-        const car = await response.json();
-        console.log(car);
+        server.close(() => {
+            console.log('Server closed');
+        });
     });
 }
 
-main().catch(console.error);
+async function client() {
+    // Create a car
+    await fetch('http://localhost:3000/car', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            model: 'Toyota',
+            wheels: 4,
+            releaseDate: new Date(),
+        }),
+    });
+
+    // Consult the car
+    const response = await fetch('http://localhost:3000/car/1');
+    const car = await response.json();
+
+    console.log(car);
+}
+
+server().catch(console.error);

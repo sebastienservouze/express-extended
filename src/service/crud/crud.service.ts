@@ -57,6 +57,7 @@ export abstract class CrudService<T extends MetadataEntity> {
      */
     async create(entity: T): Promise<T> {
         entity.createdAt = new Date();
+        entity.updatedAt = new Date();
         return this.repository.save(entity);
     }
 
