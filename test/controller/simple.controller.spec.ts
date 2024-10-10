@@ -1,13 +1,13 @@
 import {Server} from "node:http";
-import {SimpleController} from "./simple.controller";
-import {ExpressApiDb} from "../../src/express-api-db";
+import {SimpleController} from "../../example/controllers/simple.controller";
+import {ExpressApiTypeorm} from "../../src/express-api-typeorm";
 
 describe('SimpleController', () => {
 
     let api: Server;
 
     beforeAll(async () => {
-        const app = await ExpressApiDb.setupNoDb([SimpleController]);
+        const app = await ExpressApiTypeorm.setupNoDb([SimpleController]);
 
         await new Promise((resolve) => {
             api = app.listen(3000, () => resolve(api))

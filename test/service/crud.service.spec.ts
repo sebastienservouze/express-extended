@@ -1,9 +1,9 @@
-import {CarService} from "./car.service";
 import {DataSource, EntityNotFoundError, Like} from "typeorm";
-import {NotMatchingIdError} from "../../../src/error/not-matching-id.error";
+import {NotMatchingIdError} from "../../src/error/not-matching-id.error";
 import {Container} from "@nerisma/di";
-import {DataSourceUtils} from "../../../src/db/data-source.utils";
-import {Car} from "../../entity/car.entity";
+import {DataSourceUtils} from "../../src/db/data-source.utils";
+import {Car} from "../../example/entities/car.entity";
+import {CarService} from "../../example/services/car.service";
 
 describe('CrudService', () => {
 

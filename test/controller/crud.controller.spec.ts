@@ -1,11 +1,11 @@
-import {CarService} from "../../service/crud/car.service";
-import {Page} from "../../../src/service/crud/page.type";
+import {CarService} from "../../example/services/car.service";
 import {EntityNotFoundError} from "typeorm";
 import {Server} from "node:http";
-import {CarController} from "./car.controller";
 import {Container} from "@nerisma/di";
-import {Car} from "../../entity/car.entity";
-import {ExpressApiDb} from "../../../src/express-api-db";
+import {ExpressApiTypeorm} from "../../src/express-api-typeorm";
+import {Car} from "../../example/entities/car.entity";
+import {CarController} from "../../example/controllers/car.controller";
+import {Page} from "../../src/service/crud/page.type";
 
 describe('CrudController', () => {
 
@@ -13,7 +13,7 @@ describe('CrudController', () => {
     let carService: CarService;
 
     beforeAll(async () => {
-        const app = await ExpressApiDb.setup([Car], [CarController]);
+        const app = await ExpressApiTypeorm.setup([Car], [CarController]);
 
         carService = Container.resolve(CarService);
 
@@ -35,7 +35,7 @@ describe('CrudController', () => {
             data: expectedData
         });
 
-        const response = await fetch('http://localhost:3000/car');
+        const response = await fetch('http://localhost:3000/cars');
         const body = await response.json() as Page<Car>;
 
         expect(response.status).toEqual(200);
@@ -55,7 +55,7 @@ describe('CrudController', () => {
     it('should return NO CONTENT if entities not found', async () => {
         jest.spyOn(carService, 'search').mockResolvedValue(null);
 
-        const response = await fetch('http://localhost:3000/car');
+        const response = await fetch('http://localhost:3000/cars');
 
         expect(response.status).toEqual(204);
         expect(response.body).toBeNull();
@@ -64,7 +64,7 @@ describe('CrudController', () => {
     it('should call search with good query parameters', async () => {
         const searchSpy = jest.spyOn(carService, 'search').mockResolvedValue(null);
 
-        await fetch('http://localhost:3000/car?model=foo&wheels=4&releaseDate=2021-01-01&page=2&pageSize=20');
+        await fetch('http://localhost:3000/cars?model=foo&wheels=4&releaseDate=2021-01-01&page=2&pageSize=20');
 
         expect(searchSpy).toHaveBeenCalledWith({
             model: 'foo',
@@ -76,7 +76,7 @@ describe('CrudController', () => {
     it('should ignore unknown query parameters', async () => {
         const searchSpy = jest.spyOn(carService, 'search').mockResolvedValue(null);
 
-        await fetch('http://localhost:3000/car?foo=bar&page=2&pageSize=20');
+        await fetch('http://localhost:3000/cars?foo=bar&page=2&pageSize=20');
 
         expect(searchSpy).toHaveBeenCalledWith({}, 2, 20);
     });
@@ -84,7 +84,7 @@ describe('CrudController', () => {
     it('should use default page size & page if not provided', async () => {
         const searchSpy = jest.spyOn(carService, 'search').mockResolvedValue(null);
 
-        await fetch('http://localhost:3000/car');
+        await fetch('http://localhost:3000/cars');
 
         expect(searchSpy).toHaveBeenCalledWith({}, 1, 10);
     });
@@ -97,7 +97,7 @@ describe('CrudController', () => {
         const expectedData = getExpectedCar(1);
         jest.spyOn(carService, 'consult').mockResolvedValue(expectedData);
 
-        const response = await fetch('http://localhost:3000/car/1');
+        const response = await fetch('http://localhost:3000/cars/1');
         const body = await response.json() as Car;
 
         expect(response.status).toEqual(200);
@@ -112,7 +112,7 @@ describe('CrudController', () => {
     it('should return NOT FOUND if entity is not found', async () => {
         jest.spyOn(carService, 'consult').mockResolvedValue(null);
 
-        const response = await fetch('http://localhost:3000/car/1');
+        const response = await fetch('http://localhost:3000/cars/1');
         const body = await response.json();
 
         expect(response.status).toEqual(404);
@@ -120,7 +120,7 @@ describe('CrudController', () => {
     });
 
     it('should return BAD REQUEST if ID is not a number', async () => {
-        const response = await fetch('http://localhost:3000/car/foo');
+        const response = await fetch('http://localhost:3000/cars/foo');
         const body = await response.json();
 
         expect(response.status).toEqual(400);
@@ -136,7 +136,7 @@ describe('CrudController', () => {
         const expectedCar = getExpectedCar(1);
         jest.spyOn(carService, 'create').mockResolvedValue(expectedCar);
 
-        const response = await fetch('http://localhost:3000/car', {
+        const response = await fetch('http://localhost:3000/cars', {
             method: 'POST',
             body: JSON.stringify(car),
             headers: {'Content-Type': 'application/json'}
@@ -153,7 +153,7 @@ describe('CrudController', () => {
     });
 
     it('should return BAD REQUEST if body is invalid', async () => {
-        const response = await fetch('http://localhost:3000/car', {
+        const response = await fetch('http://localhost:3000/cars', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'}
         });
@@ -178,7 +178,7 @@ describe('CrudController', () => {
         const expectedCar = getExpectedCar(car.id);
         jest.spyOn(carService, 'update').mockResolvedValue(expectedCar);
 
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'PUT',
             body: JSON.stringify(car),
             headers: {'Content-Type': 'application/json'}
@@ -195,7 +195,7 @@ describe('CrudController', () => {
     });
 
     it('should return BAD REQUEST if ID is not a number', async () => {
-        const response = await fetch('http://localhost:3000/car/foo', {
+        const response = await fetch('http://localhost:3000/cars/foo', {
             method: 'PUT',
             body: JSON.stringify(getCar('model')),
             headers: {'Content-Type': 'application/json'}
@@ -210,7 +210,7 @@ describe('CrudController', () => {
         const car = getCar('model');
         car.id = 1;
 
-        const response = await fetch('http://localhost:3000/car/2', {
+        const response = await fetch('http://localhost:3000/cars/2', {
             method: 'PUT',
             body: JSON.stringify(car),
             headers: {'Content-Type': 'application/json'}
@@ -222,7 +222,7 @@ describe('CrudController', () => {
     });
 
     it('should return BAD REQUEST if body is invalid', async () => {
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'PUT',
             body: JSON.stringify({
                 id: 1,
@@ -247,7 +247,7 @@ describe('CrudController', () => {
             throw new EntityNotFoundError(Car, 1)
         });
 
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'PUT',
             body: JSON.stringify(car),
             headers: {'Content-Type': 'application/json'}
@@ -267,7 +267,7 @@ describe('CrudController', () => {
         const expectedCar = getExpectedCar(car.id);
         jest.spyOn(carService, 'patch').mockResolvedValue(expectedCar);
 
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'PATCH',
             body: JSON.stringify(car),
             headers: {'Content-Type': 'application/json'}
@@ -284,7 +284,7 @@ describe('CrudController', () => {
     });
 
     it('should return BAD REQUEST if ID is not a number', async () => {
-        const response = await fetch('http://localhost:3000/car/foo', {
+        const response = await fetch('http://localhost:3000/cars/foo', {
             method: 'PATCH',
             body: JSON.stringify(getCar('model')),
             headers: {'Content-Type': 'application/json'}
@@ -297,7 +297,7 @@ describe('CrudController', () => {
 
     it('should return BAD REQUEST if ID is provided in body', async () => {
         const car = getExpectedCar(1);
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'PATCH',
             body: JSON.stringify(car),
             headers: {'Content-Type': 'application/json'}
@@ -311,7 +311,7 @@ describe('CrudController', () => {
     it('should return BAD REQUEST if fields do not exists', async () => {
         const car = getExpectedCar(1);
         jest.spyOn(carService, 'patch').mockResolvedValue(car);
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'PATCH',
             body: JSON.stringify({
                 notAField: 'foo',
@@ -335,7 +335,7 @@ describe('CrudController', () => {
             throw new EntityNotFoundError(Car, 1)
         });
 
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'PATCH',
             body: JSON.stringify(car),
             headers: {'Content-Type': 'application/json'}
@@ -353,7 +353,7 @@ describe('CrudController', () => {
     it('should return NO CONTENT if entity is deleted', async () => {
         jest.spyOn(carService, 'delete').mockResolvedValue();
 
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'DELETE'
         });
 
@@ -362,7 +362,7 @@ describe('CrudController', () => {
     });
 
     it('should return BAD REQUEST if ID is not a number', async () => {
-        const response = await fetch('http://localhost:3000/car/foo', {
+        const response = await fetch('http://localhost:3000/cars/foo', {
             method: 'DELETE'
         });
         const body = await response.json();
@@ -376,7 +376,7 @@ describe('CrudController', () => {
             throw new EntityNotFoundError(Car, 1)
         });
 
-        const response = await fetch('http://localhost:3000/car/1', {
+        const response = await fetch('http://localhost:3000/cars/1', {
             method: 'DELETE'
         });
         const body = await response.json();

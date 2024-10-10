@@ -5,7 +5,7 @@ import {Endpoint} from "./controller/endpoint.model";
 import {DataSource, DataSourceOptions} from "typeorm";
 import {DataSourceUtils} from "./db/data-source.utils";
 
-export abstract class ExpressApiDb {
+export abstract class ExpressApiTypeorm {
 
     public static async setup(entities: Type<any>[], controllers: Type<any>[], dataSourceOptions?: DataSourceOptions): Promise<express.Application> {
         const app = express();

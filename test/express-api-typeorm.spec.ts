@@ -1,8 +1,8 @@
-import {CarController} from "./controller/crud/car.controller";
-import {Car} from "./entity/car.entity";
-import {ExpressApiDb} from "../src/express-api-db";
+import {CarController} from "../example/controllers/car.controller";
+import {Car} from "../example/entities/car.entity";
+import {ExpressApiTypeorm} from "../src/express-api-typeorm";
 import {Container} from "@nerisma/di";
-import {CarService} from "./service/crud/car.service";
+import {CarService} from "../example/services/car.service";
 import {Server} from "node:http";
 
 describe("Express API DB IT", () => {
@@ -10,7 +10,7 @@ describe("Express API DB IT", () => {
     let api: Server;
 
     it('should setup the API DB successfully', async () => {
-        const app = await ExpressApiDb.setup([Car], [CarController]);
+        const app = await ExpressApiTypeorm.setup([Car], [CarController]);
 
         await new Promise((resolve) => {
             api = app.listen(3000, () => resolve(api))
@@ -25,7 +25,7 @@ describe("Express API DB IT", () => {
         const createdCar = await carService.create(toCreate);
 
         // Consult the car via http request to confirm controller layer is injected correctly
-        const response = await fetch('http://localhost:3000/car/1');
+        const response = await fetch('http://localhost:3000/cars/1');
         const consulted = await response.json() as Car;
 
         // Check the car returned from the API is the same as the one created

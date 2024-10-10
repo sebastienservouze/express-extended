@@ -1,10 +1,17 @@
 import "reflect-metadata";
-import {ExpressApiDb} from "../src/express-api-db";
-import {Car} from "../test/entity/car.entity";
-import {CarController} from "../test/controller/crud/car.controller";
+import {ExpressApiTypeorm} from "../src/express-api-typeorm";
+import {Car} from "./entities/car.entity";
+import {CarController} from "./controllers/car.controller";
 
 async function server() {
-    const app = await ExpressApiDb.setup([Car], [CarController]);
+    const app = await ExpressApiTypeorm.setup([Car], [CarController], {
+        type: 'postgres',
+        host: 'localhost',
+        port: 5432,
+        username: 'postgres',
+        password: 'postgres',
+        database: 'test',
+    });
 
     // Start the server
     const server = app.listen(3000, async () => {
