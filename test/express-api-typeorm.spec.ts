@@ -13,7 +13,7 @@ describe("Express API DB IT", () => {
         const app = await ExpressApiTypeorm.setup([Car], [CarController]);
 
         await new Promise((resolve) => {
-            api = app.listen(3000, () => resolve(api))
+            api = app.listen(3001, () => resolve(api))
         });
 
         // Create a car via service to confirm service layer & database are injected correctly
@@ -25,7 +25,7 @@ describe("Express API DB IT", () => {
         const createdCar = await carService.create(toCreate);
 
         // Consult the car via http request to confirm controller layer is injected correctly
-        const response = await fetch('http://localhost:3000/cars/1');
+        const response = await fetch('http://localhost:3001/cars/1');
         const consulted = await response.json() as Car;
 
         // Check the car returned from the API is the same as the one created
