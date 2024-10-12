@@ -1,16 +1,18 @@
-import {CarController} from "../example/controllers/car.controller";
-import {Car} from "../example/entities/car.entity";
-import {ExpressApiTypeorm} from "../src/express-api-typeorm";
+import {CarController} from "../example/car.controller";
+import {Car} from "../src/car.entity";
 import {Container} from "@nerisma/di";
-import {CarService} from "../example/services/car.service";
+import {CarService} from "../example/car.service";
 import {Server} from "node:http";
+import expressExtended from "../src/express.extended";
 
 describe("Express API DB IT", () => {
 
     let api: Server;
 
     it('should setup the API DB successfully', async () => {
-        const app = await ExpressApiTypeorm.setup([Car], [CarController]);
+        const app = expressExtended();
+        await app.useDataSource();
+        app.useControllers([CarController]);
 
         await new Promise((resolve) => {
             api = app.listen(3001, () => resolve(api))

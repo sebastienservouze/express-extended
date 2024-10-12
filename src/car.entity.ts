@@ -1,5 +1,5 @@
 import {Column, Entity} from "typeorm";
-import {MetadataEntity} from "../../src/db/abstract-entity.model";
+import {MetadataEntity} from "./db/metadata-entity.model";
 
 @Entity()
 export class Car extends MetadataEntity {
@@ -10,7 +10,7 @@ export class Car extends MetadataEntity {
     @Column()
     wheels!: number;
 
-    @Column({type: 'timestamptz'})
+    @Column()
     releaseDate!: Date;
 
 }

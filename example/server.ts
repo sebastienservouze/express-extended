@@ -1,17 +1,15 @@
 import "reflect-metadata";
-import {ExpressApiTypeorm} from "../src/express-api-typeorm";
-import {Car} from "./entities/car.entity";
-import {CarController} from "./controllers/car.controller";
+import expressExtended from "../src/express.extended";
+import {CarController} from "./car.controller";
+import {Car} from "../src/car.entity";
+import express from "express";
 
 async function server() {
-    const app = await ExpressApiTypeorm.setup([Car], [CarController], {
-        type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'postgres',
-        password: 'postgres',
-        database: 'test',
-    });
+    const app = expressExtended();
+    app.use(express.json());
+
+    await app.useDataSource([Car]);
+    app.useControllers([CarController]);
 
     // Start the server
     const server = app.listen(3000, async () => {
@@ -28,7 +26,7 @@ async function server() {
 
 async function client() {
     // Create a car
-    await fetch('http://localhost:3000/car', {
+    const createResponse = await fetch('http://localhost:3000/cars', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -39,12 +37,13 @@ async function client() {
             releaseDate: new Date(),
         }),
     });
+    const createdCar = await createResponse.json();
+    console.log('Created car:', createdCar);
 
     // Consult the car
-    const response = await fetch('http://localhost:3000/car/1');
-    const car = await response.json();
-
-    console.log(car);
+    const consultResponse = await fetch('http://localhost:3000/cars/1');
+    const car = await consultResponse.json();
+    console.log('Consulted car:', car);
 }
 
 server().catch(console.error);

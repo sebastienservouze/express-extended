@@ -1,144 +1,90 @@
-# @nerisma/express-api-typeorm
+# @nerisma/express-extended
 
-[![npm version](https://badge.fury.io/js/%40nerisma%2Fexpress-api-typeorm.svg)](https://badge.fury.io/js/%40nerisma%2Fexpress-api-typeorm)
+[![npm version](https://badge.fury.io/js/%40nerisma%2Fexpress-api.svg)](https://badge.fury.io/js/%40nerisma%2Fexpress-api)
 
-This library provides a simple way to create an Express API with TypeORM integration in TypeScript.
+This library provides extended functionality for creating an Express API in TypeScript.
 
-It uses the `@nerisma/di` package for dependency injection and some decorators to define the routes
-via injected controllers.
+It just extends [express](https://www.npmjs.com/package/express) and integrate [typeorm](https://www.npmjs.com/package/typeorm) 
+to create a simple API. It also provides some decorators to define routes and HTTP methods in controllers and
+generic CRUD controllers / service with minimal boilerplate code and within respect of the RESTful API conventions.
 
-It also provides a simple way to create a RESTful API with TypeORM integration in TypeScript by
-providing CrudController and CrudService classes that can be extended to create CRUD operations for
-a given entity all the way from the controller to the database.
+## Installation
+
+```bash
+npm install @nerisma/express-extended
+```
 
 ## Features
 
-### Simple Express API & TypeORM integration
+- **Use it like express**: Extends **express.Application** interface to provide additional functionality.
+- **TypeORM Integration**: Easily integrate [TypeORM](https://www.npmjs.com/package/typeorm) to create a database connection.
+- **Generic CRUD**: Create CRUD controllers / services with minimal boilerplate code.
+- **Decorators**: Use decorators to define routes and HTTP methods in controllers.
+- **Dependency Injection**: Use the `@Dependency` decorator to inject services into controllers.
 
-This package provides a simple way to create an Express API with TypeORM integration in TypeScript.
+## How to use it
 
-> In this example, we will create a simple API with a `Car` entity and a `CarController`. We will use
-> an in-memory PostgreSQL database for the sake of simplicity.
+This is a simple example of how to create a working CRUD API for a `Car` entity.
 
-```typescript
-// server.ts
-import {Type} from "@nerisma/di";
-import {ExpressApiDb} from "./express-api-db";
-import {Car} from "./car.entity";
-import {CarController} from "./car.controller";
+### 1. Create an entity
 
-const entities: Type<any>[] = [Car];
-const controllers: Type<any>[] = [CarController];
-
-async function server() {
-    // If not provided, the database connection is an in-memory PostgreSQL database 
-    const app = await ExpressApiTypeorm.setup(entities, controllers);
-    
-    // Start the server
-    const server = app.listen(3000, async () => {
-        console.log('Server is running on port 3000');
-    });
-}
-
-server().catch(console.error);
-```
-
-> **And... that's it ! 🎉** 
-
-You now have a running API with a `Car` entity and a `CarController` that you can access at `http://localhost:3000/cars`.
-
-### Provide your own database connection
-
-You can also provide your own database connection options by passing them as the third argument to the `ExpressApiDb.setup` method.
-
-```typescript
-const app = await ExpressApiTypeorm.setup(entities, controllers, {
-    type: 'mysql',
-    host: 'localhost',
-    port: 5432,
-    username: 'postgres',
-    password: 'password',
-    database: 'mydb',
-});
-```
-
-### Create controllers
-
-1. To create a controller, create a class and decorate it with the `@Controller` decorator.
-2. Use the `@Get`, `@Post`, `@Put`, `@Patch` and `@Delete` decorators to define the HTTP methods.
-```typescript
-// car.controller.ts
-import {Controller} from "@nerisma/express-api-typeorm";
-
-@Controller('/cars')
-export class CarController {
-    
-    @Get('/')
-    async getCars(req: Request, res: Response) {
-        const cars = [
-            {id: 1, make: 'Toyota', model: 'Corolla'},
-            {id: 2, make: 'Honda', model: 'Civic'},
-        ];
-        
-        res.status(200)
-           .json(cars);
-    }
-}
-```
-
-3. Finally, add the controller to the `controllers` array in the `server.ts` file.
-4. You can now access the controller at the specified route, e.g. `http://localhost:3000/cars` 🚀
-
-### Create CRUD Controllers
-
-1. Create an entity class that extends the `AbstractEntity` class.
+The entity is a representation of the `Car` definition in the database.
 
 ```typescript
 // car.entity.ts
 import {AbstractEntity} from "@nerisma/express-api-typeorm";
 
 @Entity()
-export class Car extends AbstractEntity {
+export class Car extends MetadataEntity {
+    
     @Column()
-    make: string;
+    model!: string;
 
     @Column()
-    model: string;
+    wheels!: number;
+
+    @Column({type: 'timestamptz'})
+    releaseDate!: Date;
+
 }
 ```
 
-2. Create a service class that extends the `CrudService` with the Entity type.
+> **NOTE**: If you want to use the provided **generic CRUD** controllers, you need to extend the `Metadata` class.
+> It will add the `id` column and metadata columns like `createdAt` and `updatedAt`.
 
+### 2. Create a service
+
+The service is a class that will handle the database operations for the `Car` entity.
 
 ```typescript
 // car.service.ts
 import {CrudService} from "@nerisma/express-api-typeorm";
-import {Car} from "./car.entity";
-import {Dependency} from "@nerisma/di";
 
-@Dependency()
+@Dependency() // This allow the service to be injected in the controller
 export class CarService extends CrudService<Car> {
     
-    // This will be automatically injected 
+    // This will be automatically injected
     constructor(dataSource: DataSource) {
-        super(dataSource.getRepository(Car));
+        super(dataSource, Car);
     }
     
 }
 ```
 
-3. Create a controller class that extends the `CrudController` with the Entity type.
+> **NOTE**: You **must** provide the entity class to the `CrudService` constructor.
+
+### 3. Create a controller
+
+The controller is a class that will handle the HTTP requests for the `Car` entity.
 
 ```typescript
 // car.controller.ts
 import {CrudController} from "@nerisma/express-api-typeorm";
-import {Car} from "./car.entity";
-import {Dependency} from "@nerisma/di";
 
-@Dependency()
+@Dependency() // This allow the controller to be injected in the server
 export class CarController extends CrudController<Car> {
     
-    // This will be automatically injected 
+    // This will be automatically injected
     constructor(service: CarService) {
         super(service);
     }
@@ -146,14 +92,28 @@ export class CarController extends CrudController<Car> {
 }
 ```
 
-4. Add the entity, service and controller to the `entities` and `controllers` arrays in the `server.ts` file.
+### 4. Create the server
+
+Just do it as you would do with express, but use `expressExtended` instead of `express` to have access to the extended functionalities.
 
 ```typescript
-const entities: Type<any>[] = [Car];
-const controllers: Type<any>[] = [CarController];
+// server.ts
+import {Type} from "@nerisma/di";
+import {Car} from "./car.entity";
+import {CarController} from "./car.controller";
+import expressExtended from "./express.extended";
 
 async function server() {
-    const app = await ExpressApiTypeorm.setup(entities, controllers);
+    // Normal express setup
+    const app = expressExtended();
+    app.use(express.json());
+    
+    // Setup the database connection
+    await app.useDataSource();
+    
+    // Use the controllers
+    app.useControllers([CarController]);
+    
     const server = app.listen(3000, async () => {
         console.log('Server is running on port 3000');
     });
@@ -162,11 +122,22 @@ async function server() {
 server().catch(console.error);
 ```
 
-5. You can now access the CRUD operations for the `Car` entity at the specified route, e.g. `http://localhost:3000/cars` 🚀
+**And... that's it ! 🎉** You now have a running API at `http://localhost:3000/cars` with all
+CRUD operations pointing at a sqlite in-memory database.
 
-> **NOTE**: All this section is availaible in the [example](./example) folder.
-## Installation
+> **NOTE**: You can find a more complete example [here](./example) that you can run
+> by using the command `npm run example`.
 
-```bash
-npm install @nerisma/express-api-typeorm
+### Provide your own database connection
+
+Notice how the `useDataSource` method is called without the database connection options.
+By default, it will use the `sqlite` in-memory database. But you can provide your own connection options
+to the method and the `DataSourceOptions` interface.
+
+```typescript
+await app.useDataSource([Car], {
+    type: 'postgres',
+    host: 'localhost',
+    port: 5432,
+});
 ```

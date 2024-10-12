@@ -1,6 +1,6 @@
 import {CrudService} from "../../service/crud/crud.service";
 import {Request, Response} from 'express';
-import {MetadataEntity} from "../../db/abstract-entity.model";
+import {MetadataEntity} from "../../db/metadata-entity.model";
 import {EntityNotFoundError, FindOptionsWhere} from "typeorm";
 import {Page} from "../../service/crud/page.type";
 import {ColumnMetadata} from "typeorm/metadata/ColumnMetadata";

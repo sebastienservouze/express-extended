@@ -1,13 +1,14 @@
 import {Server} from "node:http";
-import {SimpleController} from "../../example/controllers/simple.controller";
-import {ExpressApiTypeorm} from "../../src/express-api-typeorm";
+import {SimpleController} from "../../example/simple.controller";
+import expressExtended from "../../src/express.extended";
 
 describe('SimpleController', () => {
 
     let api: Server;
 
     beforeAll(async () => {
-        const app = await ExpressApiTypeorm.setupNoDb([SimpleController]);
+        const app = expressExtended();
+        app.useControllers([SimpleController]);
 
         await new Promise((resolve) => {
             api = app.listen(3000, () => resolve(api))

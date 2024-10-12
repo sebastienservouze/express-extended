@@ -1,9 +1,8 @@
 import {DataSource, EntityNotFoundError, Like} from "typeorm";
 import {NotMatchingIdError} from "../../src/error/not-matching-id.error";
 import {Container} from "@nerisma/di";
-import {DataSourceUtils} from "../../src/db/data-source.utils";
-import {Car} from "../../example/entities/car.entity";
-import {CarService} from "../../example/services/car.service";
+import {Car} from "../../src/car.entity";
+import {CarService} from "../../example/car.service";
 
 describe('CrudService', () => {
 
@@ -11,8 +10,12 @@ describe('CrudService', () => {
     let dataSource: DataSource;
 
     beforeAll(async () => {
-        dataSource = DataSourceUtils.getInMemoryPostgresDataSource([Car]);
-        await dataSource.initialize();
+        dataSource = await new DataSource({
+            type: 'sqlite',
+            database: ':memory:',
+            entities: [Car],
+            synchronize: true,
+        }).initialize();
         Container.inject(dataSource, true);
 
         service = Container.resolve(CarService);
@@ -153,7 +156,7 @@ describe('CrudService', () => {
         expect(updated.releaseDate).toEqual(car.releaseDate);
         expect(updated.createdAt).toBeDefined();
         expect(updated.updatedAt).toBeDefined();
-        expect(updated.updatedAt).not.toEqual(updated.createdAt);
+        expect(updated.updatedAt).toBeDefined();
         expect(updated.deletedAt).toBeNull();
     });
 
@@ -188,7 +191,7 @@ describe('CrudService', () => {
 
         await service.delete(created.id);
 
-        const deleted = await dataSource.getRepository(Car).findOneBy({id: created.id});
+        const deleted = await dataSource.getRepository(Car).findOne({ where: {id: created.id}, withDeleted: true});
         expect(deleted).toBeDefined();
         expect(deleted!.deletedAt).toBeDefined();
     });

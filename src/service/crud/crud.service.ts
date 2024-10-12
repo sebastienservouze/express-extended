@@ -1,11 +1,12 @@
-import {EntityNotFoundError, FindOptionsWhere, IsNull, Repository} from "typeorm";
-import {MetadataEntity} from "../../db/abstract-entity.model";
+import {DataSource, EntityNotFoundError, FindOptionsWhere, IsNull, Repository} from "typeorm";
+import {MetadataEntity} from "../../db/metadata-entity.model";
 import {Page} from "./page.type";
 import {NotMatchingIdError} from "../../error/not-matching-id.error";
+import {Type} from "@nerisma/di";
 
 export abstract class CrudService<T extends MetadataEntity> {
 
-    protected constructor(public readonly repository: Repository<T>) {
+    protected constructor(private readonly datasource: DataSource, private readonly entityType: Type<T>) {
     }
 
     /**
@@ -18,7 +19,6 @@ export abstract class CrudService<T extends MetadataEntity> {
      */
     async search(criteria?: FindOptionsWhere<T>, page: number = 1, pageSize: number = 10): Promise<Page<T> | null> {
         const finalCriteria: any = criteria ?? {};
-        finalCriteria.deletedAt = IsNull();
 
         const [data, total] = await this.repository.findAndCount({
             where: finalCriteria,
@@ -46,7 +46,6 @@ export abstract class CrudService<T extends MetadataEntity> {
     async consult(id: number): Promise<T | null> {
         return await this.repository.findOneBy({
             id: id,
-            deletedAt: IsNull(),
         } as unknown as FindOptionsWhere<T>);
     }
 
@@ -56,8 +55,6 @@ export abstract class CrudService<T extends MetadataEntity> {
      * @param entity
      */
     async create(entity: T): Promise<T> {
-        entity.createdAt = new Date();
-        entity.updatedAt = new Date();
         return this.repository.save(entity);
     }
 
@@ -77,7 +74,6 @@ export abstract class CrudService<T extends MetadataEntity> {
             throw new EntityNotFoundError(this.repository.target, id);
         }
 
-        entity.updatedAt = new Date();
         return this.repository.save(entity);
     }
 
@@ -95,7 +91,6 @@ export abstract class CrudService<T extends MetadataEntity> {
         }
 
         const updated = {...existing, ...entity} as T;
-        updated.updatedAt = new Date();
 
         return this.repository.save(updated);
     }
@@ -111,7 +106,15 @@ export abstract class CrudService<T extends MetadataEntity> {
             throw new EntityNotFoundError(this.repository.target, id);
         }
 
-        entity.deletedAt = new Date();
-        await this.repository.save(entity);
+        await this.repository.softRemove(entity);
+    }
+
+    /**
+     * Returns the repository for the entity
+     *
+     * @private
+     */
+    public get repository(): Repository<T> {
+        return this.datasource.getRepository(this.entityType);
     }
 }

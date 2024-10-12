@@ -1,11 +1,12 @@
-import {CarService} from "../../example/services/car.service";
+import {CarService} from "../../example/car.service";
 import {EntityNotFoundError} from "typeorm";
 import {Server} from "node:http";
 import {Container} from "@nerisma/di";
-import {ExpressApiTypeorm} from "../../src/express-api-typeorm";
-import {Car} from "../../example/entities/car.entity";
-import {CarController} from "../../example/controllers/car.controller";
+import {Car} from "../../src/car.entity";
+import {CarController} from "../../example/car.controller";
 import {Page} from "../../src/service/crud/page.type";
+import expressExtended from "../../src/express.extended";
+import express from "express";
 
 describe('CrudController', () => {
 
@@ -13,7 +14,10 @@ describe('CrudController', () => {
     let carService: CarService;
 
     beforeAll(async () => {
-        const app = await ExpressApiTypeorm.setup([Car], [CarController]);
+        const app = expressExtended();
+        await app.useDataSource();
+        app.use(express.json());
+        app.useControllers([CarController]);
 
         carService = Container.resolve(CarService);
 
