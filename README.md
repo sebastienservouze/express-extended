@@ -1,6 +1,8 @@
 # @nerisma/express-extended
 
 [![npm version](https://badge.fury.io/js/%40nerisma%2Fexpress-extended.svg)](https://badge.fury.io/js/%40nerisma%2Fexpress-extended)
+[![Build Status](https://travis-ci.com/Nerisma/express-extended.svg?branch=main)](https://travis-ci.com/Nerisma/express-extended)
+[![Coverage Status](https://coveralls.io/repos/github/Nerisma/express-extended/badge.svg?branch=main)](https://coveralls.io/github/Nerisma/express-extended?branch=main)
 
 This library provides extended functionality for creating an Express API in TypeScript.
 
@@ -47,7 +49,7 @@ export class Car extends MetadataEntity {
 }
 ```
 
-> **NOTE**: If you want to use the provided **generic CRUD** controllers, you need to extend the `Metadata` class.
+> **NOTE**: If you want to use the provided **generic CRUD** controllers, you need to extend the `MetadataEntity` class.
 > It will add the `id` column and metadata columns like `createdAt` and `updatedAt`.
 
 ### 2. Create a service
