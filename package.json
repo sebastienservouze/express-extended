@@ -1,5 +1,5 @@
 {
-    "name": "@nerisma/express-api",
+    "name": "@nerisma/express-extended",
     "version": "1.0.5",
     "main": "dist/public-api.js",
     "types": "dist/public-api.d.ts",

@@ -1,6 +1,6 @@
 # @nerisma/express-extended
 
-[![npm version](https://badge.fury.io/js/%40nerisma%2Fexpress-api.svg)](https://badge.fury.io/js/%40nerisma%2Fexpress-api)
+[![npm version](https://badge.fury.io/js/%40nerisma%2Fexpress-extended.svg)](https://badge.fury.io/js/%40nerisma%2Fexpress-extended)
 
 This library provides extended functionality for creating an Express API in TypeScript.
 
@@ -32,8 +32,6 @@ The entity is a representation of the `Car` definition in the database.
 
 ```typescript
 // car.entity.ts
-import {AbstractEntity} from "@nerisma/express-api-typeorm";
-
 @Entity()
 export class Car extends MetadataEntity {
     
@@ -58,8 +56,6 @@ The service is a class that will handle the database operations for the `Car` en
 
 ```typescript
 // car.service.ts
-import {CrudService} from "@nerisma/express-api-typeorm";
-
 @Dependency() // This allow the service to be injected in the controller
 export class CarService extends CrudService<Car> {
     
@@ -79,8 +75,6 @@ The controller is a class that will handle the HTTP requests for the `Car` entit
 
 ```typescript
 // car.controller.ts
-import {CrudController} from "@nerisma/express-api-typeorm";
-
 @Dependency() // This allow the controller to be injected in the server
 export class CarController extends CrudController<Car> {
     
@@ -98,11 +92,6 @@ Just do it as you would do with express, but use `expressExtended` instead of `e
 
 ```typescript
 // server.ts
-import {Type} from "@nerisma/di";
-import {Car} from "./car.entity";
-import {CarController} from "./car.controller";
-import expressExtended from "./express.extended";
-
 async function server() {
     // Normal express setup
     const app = expressExtended();
