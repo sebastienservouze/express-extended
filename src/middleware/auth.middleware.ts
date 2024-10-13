@@ -1,7 +1,8 @@
 import {NextFunction, Request, Response} from "express";
 import jwt from "jsonwebtoken";
+import {AuthRole} from "../service/auth/auth-role.enum";
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
+export function authMiddleware(req: Request, res: Response, next: NextFunction, minimalRole?: AuthRole): void {
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader) {
         res.status(401).send('Unauthorized');
@@ -12,6 +13,10 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
 
     try {
         req.body.user = jwt.verify(token, 'ACCESS SECRET');
+        if (minimalRole && req.body.user.role < minimalRole) {
+            res.status(401).send('Forbidden');
+        }
+
         next();
     } catch (e) {
         res.status(401).send('Unauthorized');

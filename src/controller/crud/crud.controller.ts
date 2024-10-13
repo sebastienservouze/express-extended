@@ -3,7 +3,6 @@ import {Request, Response} from 'express';
 import {MetadataEntity} from "../../db/metadata-entity.model";
 import {EntityNotFoundError, FindOptionsWhere} from "typeorm";
 import {Page} from "../../service/crud/page.type";
-import {ColumnMetadata} from "typeorm/metadata/ColumnMetadata";
 import {NotMatchingIdError} from "../../error/not-matching-id.error";
 import {Delete, Get, Patch, Post, Put} from "../controller.decorators";
 import {InvalidBodyError} from "../../error/invalid-body.error";
@@ -13,10 +12,7 @@ const METADATA_COLUMNS = ['createdAt', 'updatedAt', 'deletedAt'];
 
 export abstract class CrudController<T extends MetadataEntity> {
 
-    private entityColumns: ColumnMetadata[];
-
     protected constructor(private readonly service: CrudService<T>) {
-        this.entityColumns = service.repository.metadata.columns;
     }
 
     /**
@@ -271,5 +267,9 @@ export abstract class CrudController<T extends MetadataEntity> {
         if (errors.length > 0) {
             throw new InvalidBodyError(...errors);
         }
+    }
+
+    private get entityColumns() {
+        return this.service.repository!.metadata.columns;
     }
 }

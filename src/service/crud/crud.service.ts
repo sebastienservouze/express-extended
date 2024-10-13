@@ -20,7 +20,7 @@ export abstract class CrudService<T extends MetadataEntity> {
     async search(criteria?: FindOptionsWhere<T>, page: number = 1, pageSize: number = 10): Promise<Page<T> | null> {
         const finalCriteria: any = criteria ?? {};
 
-        const [data, total] = await this.repository.findAndCount({
+        const [data, total] = await this.repository!.findAndCount({
             where: finalCriteria,
             skip: (page - 1) * pageSize,
             take: pageSize
@@ -44,7 +44,7 @@ export abstract class CrudService<T extends MetadataEntity> {
      * @param id
      */
     async consult(id: number): Promise<T | null> {
-        return await this.repository.findOneBy({
+        return await this.repository!.findOneBy({
             id: id,
         } as unknown as FindOptionsWhere<T>);
     }
@@ -55,7 +55,7 @@ export abstract class CrudService<T extends MetadataEntity> {
      * @param entity
      */
     async create(entity: T): Promise<T> {
-        return this.repository.save(entity);
+        return this.repository!.save(entity);
     }
 
     /**
@@ -69,12 +69,12 @@ export abstract class CrudService<T extends MetadataEntity> {
             throw new NotMatchingIdError(entity.id, id);
         }
 
-        const existing = await this.repository.findOneBy({id} as FindOptionsWhere<T>);
+        const existing = await this.repository!.findOneBy({id} as FindOptionsWhere<T>);
         if (!existing) {
-            throw new EntityNotFoundError(this.repository.target, id);
+            throw new EntityNotFoundError(this.repository!.target, id);
         }
 
-        return this.repository.save(entity);
+        return this.repository!.save(entity);
     }
 
     /**
@@ -85,14 +85,14 @@ export abstract class CrudService<T extends MetadataEntity> {
      * @param entity
      */
     async patch(id: number, entity: Partial<T>): Promise<T> {
-        const existing = await this.repository.findOneBy({id} as FindOptionsWhere<T>);
+        const existing = await this.repository!.findOneBy({id} as FindOptionsWhere<T>);
         if (!existing) {
-            throw new EntityNotFoundError(this.repository.target, id);
+            throw new EntityNotFoundError(this.repository!.target, id);
         }
 
         const updated = {...existing, ...entity} as T;
 
-        return this.repository.save(updated);
+        return this.repository!.save(updated);
     }
 
     /**
@@ -101,12 +101,12 @@ export abstract class CrudService<T extends MetadataEntity> {
      * @param id
      */
     async delete(id: number): Promise<void> {
-        const entity = await this.repository.findOneBy({id} as FindOptionsWhere<T>);
+        const entity = await this.repository!.findOneBy({id} as FindOptionsWhere<T>);
         if (!entity) {
-            throw new EntityNotFoundError(this.repository.target, id);
+            throw new EntityNotFoundError(this.repository!.target, id);
         }
 
-        await this.repository.softRemove(entity);
+        await this.repository!.softRemove(entity);
     }
 
     /**
@@ -114,7 +114,7 @@ export abstract class CrudService<T extends MetadataEntity> {
      *
      * @private
      */
-    public get repository(): Repository<T> {
-        return this.datasource.getRepository(this.entityType);
+    public get repository(): Repository<T> | null {
+        return this.datasource?.getRepository(this.entityType);
     }
 }

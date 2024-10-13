@@ -6,7 +6,6 @@ import {DataSource} from "typeorm";
 import {Container} from "@nerisma/di";
 import {AuthUser} from "../../src/db/auth-user.entity";
 import express from "express";
-import {authMiddleware} from "../../src/middleware/auth.middleware";
 
 describe("AuthController", () => {
 
@@ -24,12 +23,12 @@ describe("AuthController", () => {
         await dataSource.getRepository(AuthUser).save(TestsUtils.testUser);
 
         await new Promise((resolve) => {
-            api = app.listen(3000, () => resolve(api))
+            api = app.listen(3004, () => resolve(api))
         });
     });
 
     it('should sign in successfully', async () => {
-        const response = await fetch('http://localhost:3000/auth', {
+        const response = await fetch('http://localhost:3004/auth', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -43,7 +42,7 @@ describe("AuthController", () => {
     });
 
     it('should return 401 when no authorization header is provided', async () => {
-        const response = await fetch('http://localhost:3000/auth', {
+        const response = await fetch('http://localhost:3004/auth', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -54,7 +53,7 @@ describe("AuthController", () => {
     });
 
     it('should return 401 when invalid credentials are provided', async () => {
-        const response = await fetch('http://localhost:3000/auth', {
+        const response = await fetch('http://localhost:3004/auth', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

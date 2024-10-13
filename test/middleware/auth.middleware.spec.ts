@@ -4,6 +4,7 @@ import express from "express";
 import {Server} from "node:http";
 import expressExtended from "../../src/express.extended";
 import jwt from "jsonwebtoken";
+import {AuthRole} from "../../src/service/auth/auth-role.enum";
 
 describe("AuthMiddleware", () => {
 
@@ -22,7 +23,9 @@ describe("AuthMiddleware", () => {
 
     it('should next with valid token', async () => {
         // Add a secured route to the express app
-        app.use('/secured', authMiddleware, (req, res) => {
+        app.use('/secured', (req, res, next) => {
+            return authMiddleware(req, res, next);
+        }, (req, res) => {
             res.status(200).send('Secured route');
         });
 
@@ -40,7 +43,9 @@ describe("AuthMiddleware", () => {
 
     it('should return 401 when no authorization header is provided', async () => {
         // Add a secured route to the express app
-        app.use('/secured', authMiddleware, (req, res) => {
+        app.use('/secured', (req, res, next) => {
+            return authMiddleware(req, res, next);
+        }, (req, res) => {
             res.status(200).send('Secured route');
         });
 
@@ -56,7 +61,9 @@ describe("AuthMiddleware", () => {
 
     it('should return 401 when invalid token is provided', async () => {
         // Add a secured route to the express app
-        app.use('/secured', authMiddleware, (req, res) => {
+        app.use('/secured', (req, res, next) => {
+            return authMiddleware(req, res, next);
+        }, (req, res) => {
             res.status(200).send('Secured route');
         });
 
@@ -67,7 +74,29 @@ describe("AuthMiddleware", () => {
                 'Authorization': 'Bearer ' + jwt.sign({
                     sub: '1',
                     username: 'username',
-                    role: 'role'
+                }, 'INVALID SECRET')
+            }
+        });
+
+        expect(response.status).toBe(401);
+    });
+
+    it('should return 401 when role is not enough', async () => {
+        // Add a secured route to the express app
+        app.use('/secured', (req, res, next) => {
+            return authMiddleware(req, res, next, AuthRole.ADMIN);
+        }, (req, res) => {
+            res.status(200).send('Secured route');
+        });
+
+        const response = await fetch('http://localhost:3003/secured', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + jwt.sign({
+                    sub: '1',
+                    username: 'username',
+                    role: AuthRole.USER,
                 }, 'INVALID SECRET')
             }
         });

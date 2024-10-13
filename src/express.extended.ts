@@ -1,8 +1,9 @@
 import {Container, Type} from "@nerisma/di";
 import {DataSource, DataSourceOptions} from "typeorm";
-import express from "express";
+import express, {NextFunction, Request, Response} from "express";
 import {ControllerMetadataKeys} from "./controller/controller-metadata-keys.enum";
 import {Endpoint} from "./controller/endpoint.model";
+import {authMiddleware} from "./middleware/auth.middleware";
 
 declare module 'express' {
     export interface Application {
@@ -49,6 +50,7 @@ export function expressExtended(): express.Application {
         }
 
         const dataSource = await new DataSource(dataSourceOptions).initialize();
+
         Container.inject(dataSource, true);
     }
 
@@ -63,7 +65,19 @@ export function expressExtended(): express.Application {
         const instance = Container.resolve(controller);
         endpoints.forEach((endpoint: Endpoint) => {
             const path = `${basePath}${endpoint.path}`;
-            app[endpoint.verb.toLowerCase() as keyof express.Application](path, endpoint.handler.bind(instance));
+            const method = endpoint.verb.toLowerCase() as keyof express.Application;
+
+            console.log('Registered route:', endpoint.verb, path);
+
+            if (endpoint.minimalRole) {
+                app[method](path, (req: Request, res: Response, next: NextFunction) => {
+                    return authMiddleware(req, res, next, endpoint.minimalRole);
+                }, endpoint.handler.bind(instance));
+                return;
+            }
+
+            app[method](path, endpoint.handler.bind(instance));
+
         });
     }
 
