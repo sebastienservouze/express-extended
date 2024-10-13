@@ -13,7 +13,7 @@ declare module 'express' {
          * **Note:** If no `dataSourceOptions` are provided, it will default to an in-memory SQLite database.
          * @param dataSourceOptions
          */
-        useDataSource(dataSourceOptions?: DataSourceOptions): Promise<void>;
+        useDataSource(dataSourceOptions?: DataSourceOptions): Promise<DataSource>;
 
         /**
          * Resolve and bind the controllers routes to the express application
@@ -39,7 +39,7 @@ export function expressExtended(): express.Application {
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
 
-    app.useDataSource = async function (dataSourceOptions?: DataSourceOptions): Promise<void> {
+    app.useDataSource = async function (dataSourceOptions?: DataSourceOptions): Promise<DataSource> {
         if (!dataSourceOptions) {
             dataSourceOptions = {
                 type: 'sqlite',
@@ -52,6 +52,9 @@ export function expressExtended(): express.Application {
         const dataSource = await new DataSource(dataSourceOptions).initialize();
 
         Container.inject(dataSource, true);
+
+        console.log('Datasource initialized', dataSource.entityMetadatas.map(em => em.name));
+        return dataSource;
     }
 
     app.useController = function (controller: Type<any>): void {
