@@ -1,4 +1,4 @@
-import {Controller, Delete, Get, Patch, Post, Put} from '../src/controller/controller.decorators';
+import {Controller, Delete, Get, Patch, Post, Put} from '../../src/controller/controller.decorators';
 import {Request, Response} from 'express';
 
 @Controller('/test')

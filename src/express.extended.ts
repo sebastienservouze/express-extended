@@ -25,6 +25,11 @@ declare module 'express' {
          * @param controller
          */
         useController(controller: Type<any>): void;
+
+        /**
+         * Setup the express application to use authentication
+         */
+        useAuthentication(): void;
     }
 }
 
@@ -47,10 +52,6 @@ export function expressExtended(): express.Application {
         Container.inject(dataSource, true);
     }
 
-    app.useControllers = function (controllers: Type<any>[]): void {
-        controllers.forEach(controller => this.useController(controller));
-    };
-
     app.useController = function (controller: Type<any>): void {
         const basePath = Reflect.getMetadata(ControllerMetadataKeys.BASE_PATH, controller);
         const endpoints = Reflect.getMetadata(ControllerMetadataKeys.ENDPOINTS, controller) || [];
@@ -65,6 +66,10 @@ export function expressExtended(): express.Application {
             app[endpoint.verb.toLowerCase() as keyof express.Application](path, endpoint.handler.bind(instance));
         });
     }
+
+    app.useControllers = function (controllers: Type<any>[]): void {
+        controllers.forEach(controller => this.useController(controller));
+    };
 
     return app;
 }

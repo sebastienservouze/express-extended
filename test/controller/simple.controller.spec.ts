@@ -1,6 +1,6 @@
 import {Server} from "node:http";
-import {SimpleController} from "../../example/simple.controller";
 import expressExtended from "../../src/express.extended";
+import {SimpleController} from "./simple.controller";
 
 describe('SimpleController', () => {
 

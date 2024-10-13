@@ -4,12 +4,14 @@ import {CarController} from "./car.controller";
 
 async function server() {
     const app = expressExtended();
+
     await app.useDataSource({
         type: 'sqlite',
         database: ':memory:',
         synchronize: true,
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
     });
+
     app.useControllers([CarController]);
 
     // Start the server
