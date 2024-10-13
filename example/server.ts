@@ -1,14 +1,15 @@
 import "reflect-metadata";
 import expressExtended from "../src/express.extended";
 import {CarController} from "./car.controller";
-import {Car} from "../src/car.entity";
-import express from "express";
 
 async function server() {
     const app = expressExtended();
-    app.use(express.json());
-
-    await app.useDataSource([Car]);
+    await app.useDataSource({
+        type: 'sqlite',
+        database: ':memory:',
+        synchronize: true,
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    });
     app.useControllers([CarController]);
 
     // Start the server

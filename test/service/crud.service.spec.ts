@@ -1,7 +1,7 @@
 import {DataSource, EntityNotFoundError, Like} from "typeorm";
 import {NotMatchingIdError} from "../../src/error/not-matching-id.error";
 import {Container} from "@nerisma/di";
-import {Car} from "../../src/car.entity";
+import {Car} from "../../example/car.entity";
 import {CarService} from "../../example/car.service";
 
 describe('CrudService', () => {

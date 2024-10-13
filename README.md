@@ -106,9 +106,8 @@ import expressExtended from "./express.extended";
 async function server() {
     // Normal express setup
     const app = expressExtended();
-    app.use(express.json());
     
-    // Setup the database connection
+    // Setup the database connection (no params to use sqlite in-memory)
     await app.useDataSource();
     
     // Use the controllers
@@ -135,9 +134,10 @@ By default, it will use the `sqlite` in-memory database. But you can provide you
 to the method and the `DataSourceOptions` interface.
 
 ```typescript
-await app.useDataSource([Car], {
+await app.useDataSource({
     type: 'postgres',
     host: 'localhost',
     port: 5432,
+    entities: [__dirname + '/**/*.entity{.ts,.js}'],
 });
 ```

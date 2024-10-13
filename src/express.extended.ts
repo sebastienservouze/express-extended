@@ -10,8 +10,6 @@ declare module 'express' {
          * Initialize the datasource and inject it into the container.
          * <br>
          * **Note:** If no `dataSourceOptions` are provided, it will default to an in-memory SQLite database.
-         * <br>
-         * **Note:** Provided `dataSourceOptions.entities` will be merged with the `entities` parameter.
          * @param dataSourceOptions
          */
         useDataSource(dataSourceOptions?: DataSourceOptions): Promise<void>;
@@ -32,6 +30,8 @@ declare module 'express' {
 
 export function expressExtended(): express.Application {
     const app = express() as unknown as express.Application;
+    app.use(express.json());
+    app.use(express.urlencoded({extended: true}));
 
     app.useDataSource = async function (dataSourceOptions?: DataSourceOptions): Promise<void> {
         if (!dataSourceOptions) {

@@ -1,9 +1,11 @@
 import {CarController} from "../example/car.controller";
-import {Car} from "../src/car.entity";
+import {Car} from "../example/car.entity";
 import {Container} from "@nerisma/di";
 import {CarService} from "../example/car.service";
 import {Server} from "node:http";
 import expressExtended from "../src/express.extended";
+import path from "path";
+import {TestsUtils} from "./tests.utils";
 
 describe("Express API DB IT", () => {
 
@@ -11,7 +13,8 @@ describe("Express API DB IT", () => {
 
     it('should setup the API DB successfully', async () => {
         const app = expressExtended();
-        await app.useDataSource();
+        await app.useDataSource(TestsUtils.dataSourceOptions);
+
         app.useControllers([CarController]);
 
         await new Promise((resolve) => {

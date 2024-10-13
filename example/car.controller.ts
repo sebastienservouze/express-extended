@@ -1,5 +1,5 @@
 import {CrudController} from "../src/controller/crud/crud.controller";
-import {Car} from "../src/car.entity";
+import {Car} from "./car.entity";
 import {CarService} from "./car.service";
 import {Controller} from "../src/controller/controller.decorators";
 
