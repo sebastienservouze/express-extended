@@ -1,10 +1,10 @@
-import {CarService} from "../../example/car.service";
+import {CarService} from "../../example/Car.service";
 import {EntityNotFoundError} from "typeorm";
 import {Server} from "node:http";
 import {Container} from "@nerisma/di";
-import {Car} from "../../example/car.entity";
-import {CarController} from "../../example/car.controller";
-import {Page} from "../../src/service/crud/page.type";
+import {Car} from "../../example/Car.entity";
+import {CarController} from "../../example/Car.controller";
+import {Page} from "../../src/service/Page.type";
 import expressExtended from "../../src/express.extended";
 import {TestsUtils} from "../tests.utils";
 

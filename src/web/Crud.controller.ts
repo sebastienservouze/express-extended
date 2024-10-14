@@ -1,11 +1,11 @@
-import {CrudService} from "../../service/crud/crud.service";
+import {CrudService} from "../service/Crud.service";
 import {Request, Response} from 'express';
-import {MetadataEntity} from "../../db/metadata-entity.model";
+import {MetadataEntity} from "../db/MetadataEntity";
 import {EntityNotFoundError, FindOptionsWhere} from "typeorm";
-import {Page} from "../../service/crud/page.type";
-import {NotMatchingIdError} from "../../error/not-matching-id.error";
-import {Delete, Get, Patch, Post, Put} from "../controller.decorators";
-import {InvalidBodyError} from "../../error/invalid-body.error";
+import {Page} from "../service/Page.type";
+import {NotMatchingIdError} from "../errors/NotMatchingId.error";
+import {Delete, Get, Patch, Post, Put} from "./Controller.decorators";
+import {InvalidBodyError} from "../errors/InvalidBody.error";
 
 const DEFAULT_PAGE_SIZE = 10;
 const METADATA_COLUMNS = ['createdAt', 'updatedAt', 'deletedAt'];

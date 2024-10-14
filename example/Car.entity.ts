@@ -1,5 +1,5 @@
 import {Column, Entity} from "typeorm";
-import {MetadataEntity} from "../src/db/metadata-entity.model";
+import {MetadataEntity} from "../src/db/MetadataEntity";
 
 @Entity()
 export class Car extends MetadataEntity {

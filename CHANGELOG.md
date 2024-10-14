@@ -1,4 +1,4 @@
-# @nerisma/express-api
+# @nerisma/express-extended
 
 ## 1.0.5
 

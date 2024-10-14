@@ -1,7 +1,7 @@
-import {CrudService} from "../src/service/crud/crud.service";
+import {CrudService} from "../src/service/Crud.service";
 import {Dependency} from "@nerisma/di";
 import {DataSource} from "typeorm";
-import {Car} from "./car.entity";
+import {Car} from "./Car.entity";
 
 @Dependency()
 export class CarService extends CrudService<Car> {

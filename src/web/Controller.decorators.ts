@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import {HttpVerb} from "./http-verb.enum";
 import express from "express";
-import {ControllerMetadataKeys} from "./controller-metadata-keys.enum";
+import {ControllerMetadataKeys} from "./ControllerMetadataKeys.enum";
 import {MetadataKeys} from "@nerisma/di";
+import {HttpVerb} from "./HttpVerb.enum";
 
 export function Controller(basePath: string): ClassDecorator {
     return (target) => {

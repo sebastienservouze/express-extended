@@ -1,8 +1,8 @@
 import {DataSource, EntityNotFoundError, Like} from "typeorm";
-import {NotMatchingIdError} from "../../src/error/not-matching-id.error";
+import {NotMatchingIdError} from "../../src/errors/NotMatchingId.error";
 import {Container} from "@nerisma/di";
-import {Car} from "../../example/car.entity";
-import {CarService} from "../../example/car.service";
+import {Car} from "../../example/Car.entity";
+import {CarService} from "../../example/Car.service";
 
 describe('CrudService', () => {
 
@@ -68,7 +68,12 @@ describe('CrudService', () => {
     it('should return null if no results', async () => {
         const page = await service.search({model: 'DOES NOT EXISTS'}, 1, 5);
 
-        expect(page).toBeNull();
+        expect(page).toEqual({
+            data: [],
+            total: 0,
+            page: 1,
+            pageSize: 5
+        })
     });
 
     it('should find cars with criteria', async () => {

@@ -33,7 +33,7 @@ This is a simple example of how to create a working CRUD API for a `Car` entity.
 The entity is a representation of the `Car` definition in the database.
 
 ```typescript
-// car.entity.ts
+// Car.entity.ts
 @Entity()
 export class Car extends MetadataEntity {
     
@@ -57,7 +57,7 @@ export class Car extends MetadataEntity {
 The service is a class that will handle the database operations for the `Car` entity.
 
 ```typescript
-// car.service.ts
+// Car.service.ts
 @Dependency() // This allow the service to be injected in the controller
 export class CarService extends CrudService<Car> {
     
@@ -76,7 +76,7 @@ export class CarService extends CrudService<Car> {
 The controller is a class that will handle the HTTP requests for the `Car` entity.
 
 ```typescript
-// car.controller.ts
+// Car.controller.ts
 @Dependency() // This allow the controller to be injected in the server
 export class CarController extends CrudController<Car> {
     

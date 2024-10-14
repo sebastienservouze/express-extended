@@ -1,6 +1,6 @@
 {
     "name": "@nerisma/express-extended",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "main": "dist/public-api.js",
     "types": "dist/public-api.d.ts",
     "publishConfig": {
@@ -18,14 +18,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/sebastienservouze/express-api.git"
+        "url": "git+https://github.com/sebastienservouze/express-extended.git"
     },
     "author": "Nerisma",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/sebastienservouze/express-api/issues"
+        "url": "https://github.com/sebastienservouze/express-extended/issues"
     },
-    "homepage": "https://github.com/sebastienservouze/express-api#readme",
+    "homepage": "https://github.com/sebastienservouze/express-extended#readme",
     "description": "",
     "devDependencies": {
         "@arethetypeswrong/cli": "^0.16.4",
@@ -33,7 +33,6 @@
         "@changesets/cli": "^2.27.9",
         "@types/express": "^5.0.0",
         "@types/jest": "^29.5.13",
-        "@types/jsonwebtoken": "^9.0.7",
         "@types/node": "^22.7.4",
         "@types/pino": "^7.0.5",
         "ts-jest": "^29.2.5",
@@ -42,9 +41,8 @@
         "typescript": "^5.6.2"
     },
     "peerDependencies": {
-        "@nerisma/di": "^1.0.12",
+        "@nerisma/di": "^1.0.14",
         "express": "^4.21.0",
-        "jsonwebtoken": "^9.0.2",
         "pino-pretty": "^11.2.2",
         "reflect-metadata": "^0.2.2",
         "sqlite": "^5.1.1",

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import expressExtended from "../src/express.extended";
-import {CarController} from "./car.controller";
+import {CarController} from "./Car.controller";
 
 async function server() {
     const app = expressExtended();

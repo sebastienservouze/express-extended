@@ -1,9 +1,9 @@
 import {Container, Type} from "@nerisma/di";
 import {DataSource, DataSourceOptions} from "typeorm";
-import express, {NextFunction, Request, Response} from "express";
-import {ControllerMetadataKeys} from "./controller/controller-metadata-keys.enum";
-import {Endpoint} from "./controller/endpoint.model";
-import {authMiddleware} from "./middleware/auth.middleware";
+import express from "express";
+import {ControllerMetadataKeys} from "./web/ControllerMetadataKeys.enum";
+import {Endpoint} from "./web/Endpoint.interface";
+import {ILogger} from "@nerisma/di/dist/Logger";
 
 declare module 'express' {
     export interface Application {
@@ -28,9 +28,11 @@ declare module 'express' {
         useController(controller: Type<any>): void;
 
         /**
-         * Setup the express application to use authentication
+         * Use a logger for the express-extended methods
+         * @param logger
          */
-        useAuthentication(): void;
+        useLogger(logger: ILogger): void;
+        logger: ILogger;
     }
 }
 
@@ -50,10 +52,12 @@ export function expressExtended(): express.Application {
         }
 
         const dataSource = await new DataSource(dataSourceOptions).initialize();
-
         Container.inject(dataSource, true);
 
-        console.log('Datasource initialized', dataSource.entityMetadatas.map(em => em.name));
+        if (this.logger) {
+            this.logger.debug('[ExpressExtended] - Datasource initialized', dataSource.entityMetadatas.map(em => em.name));
+        }
+
         return dataSource;
     }
 
@@ -70,23 +74,21 @@ export function expressExtended(): express.Application {
             const path = `${basePath}${endpoint.path}`;
             const method = endpoint.verb.toLowerCase() as keyof express.Application;
 
-            console.log('Registered route:', endpoint.verb, path);
-
-            if (endpoint.minimalRole) {
-                app[method](path, (req: Request, res: Response, next: NextFunction) => {
-                    return authMiddleware(req, res, next, endpoint.minimalRole);
-                }, endpoint.handler.bind(instance));
-                return;
-            }
-
             app[method](path, endpoint.handler.bind(instance));
 
+            if (this.logger) {
+                this.logger.debug(`[ExpressExtended] - ${endpoint.verb} ${path} bound to ${controller.name}`);
+            }
         });
     }
 
     app.useControllers = function (controllers: Type<any>[]): void {
         controllers.forEach(controller => this.useController(controller));
     };
+
+    app.useLogger = function (logger: ILogger): void {
+        this.logger = logger;
+    }
 
     return app;
 }

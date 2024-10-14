@@ -1,7 +1,7 @@
 import {DataSource, EntityNotFoundError, FindOptionsWhere, IsNull, Repository} from "typeorm";
-import {MetadataEntity} from "../../db/metadata-entity.model";
-import {Page} from "./page.type";
-import {NotMatchingIdError} from "../../error/not-matching-id.error";
+import {MetadataEntity} from "../db/MetadataEntity";
+import {Page} from "./Page.type";
+import {NotMatchingIdError} from "../errors/NotMatchingId.error";
 import {Type} from "@nerisma/di";
 
 export abstract class CrudService<T extends MetadataEntity> {
@@ -25,10 +25,6 @@ export abstract class CrudService<T extends MetadataEntity> {
             skip: (page - 1) * pageSize,
             take: pageSize
         });
-
-        if (data.length === 0) {
-            return null;
-        }
 
         return {
             data,
