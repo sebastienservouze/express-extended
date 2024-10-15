@@ -1,6 +1,6 @@
 {
     "name": "@nerisma/express-extended",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "main": "dist/public-api.js",
     "types": "dist/public-api.d.ts",
     "publishConfig": {
