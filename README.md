@@ -98,8 +98,13 @@ async function server() {
     // Normal express setup
     const app = expressExtended();
     
-    // Setup the database connection (no params to use sqlite in-memory)
-    await app.useDataSource();
+    // Setup the database connection 
+    await app.useDataSource({
+        type: 'sqlite',
+        database: ':memory:',
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+    });
     
     // Use the controllers
     app.useControllers([CarController]);
