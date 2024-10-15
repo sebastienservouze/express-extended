@@ -16,13 +16,13 @@ declare module 'express' {
          * Resolve and bind the controllers routes to the express application
          * @param controllers
          */
-        useControllers(controllers: Type<any>[]): void;
+        useControllers(controllers: Type<any>[]): Endpoint[];
 
         /**
          * Resolve and bind the controller routes to the express application
          * @param controller
          */
-        useController(controller: Type<any>): void;
+        useController(controller: Type<any>): Endpoint[];
     }
 }
 
@@ -53,11 +53,14 @@ export function expressExtended(): express.Application {
             app[method](path, endpoint.handler.bind(instance));
         });
 
-        return endpoints;
+        return endpoints.map((endpoint: Endpoint) => {
+            endpoint.path = `${basePath}${endpoint.path}`;
+            return endpoint;
+        });
     }
 
-    app.useControllers = function (controllers: Type<any>[]): void {
-        controllers.forEach(controller => this.useController(controller));
+    app.useControllers = function (controllers: Type<any>[]): Endpoint[] {
+        return controllers.map(controller => this.useController(controller)).flat();
     };
 
     return app;
