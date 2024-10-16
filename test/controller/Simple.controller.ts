@@ -1,6 +1,6 @@
 import {Controller, Delete, Get, Patch, Post, Put} from '../../src/web/Controller.decorators';
 import {Request, Response} from 'express';
-import {TestsUtils} from "../tests.utils";
+import {TestsUtils} from "../Tests.utils";
 
 @Controller('/test', TestsUtils.addHeaderMiddleware('CONTROLLER', 'ALL'))
 export class SimpleController {

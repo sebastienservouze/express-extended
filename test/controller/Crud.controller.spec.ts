@@ -6,7 +6,7 @@ import {Car} from "../../example/Car.entity";
 import {CarController} from "../../example/Car.controller";
 import {Page} from "../../src/types/Page.type";
 import expressExtended from "../../src/express.extended";
-import {TestsUtils} from "../tests.utils";
+import {TestsUtils} from "../Tests.utils";
 
 describe('CrudController', () => {
 

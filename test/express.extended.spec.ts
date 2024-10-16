@@ -5,7 +5,7 @@ import {CarService} from "../example/Car.service";
 import {Server} from "node:http";
 import expressExtended from "../src/express.extended";
 import path from "path";
-import {TestsUtils} from "./tests.utils";
+import {TestsUtils} from "./Tests.utils";
 
 describe("Express API DB IT", () => {
 
