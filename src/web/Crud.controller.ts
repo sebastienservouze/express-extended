@@ -2,7 +2,7 @@ import {CrudService} from "../service/Crud.service";
 import {Request, Response} from 'express';
 import {MetadataEntity} from "../db/MetadataEntity";
 import {EntityNotFoundError, FindOptionsWhere} from "typeorm";
-import {Page} from "../service/Page.type";
+import {Page} from "../types/Page.type";
 import {NotMatchingIdError} from "../errors/NotMatchingId.error";
 import {Delete, Get, Patch, Post, Put} from "./Controller.decorators";
 import {InvalidBodyError} from "../errors/InvalidBody.error";

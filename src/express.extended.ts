@@ -40,6 +40,7 @@ export function expressExtended(): express.Application {
     app.useController = function (controller: Type<any>): Endpoint[] {
         const basePath = Reflect.getMetadata(ControllerMetadataKeys.BASE_PATH, controller);
         const endpoints = Reflect.getMetadata(ControllerMetadataKeys.ENDPOINTS, controller) || [];
+        const globalMiddlewares = Reflect.getMetadata(ControllerMetadataKeys.MIDDLEWARES, controller) || [];
 
         if (!basePath) {
             throw new Error(`Base path not defined for controller: ${controller.name}`);
@@ -49,8 +50,9 @@ export function expressExtended(): express.Application {
         endpoints.forEach((endpoint: Endpoint) => {
             const path = `${basePath}${endpoint.path}`;
             const method = endpoint.verb.toLowerCase() as keyof express.Application;
+            const endpointMiddlewares = endpoint.middlewares || [];
 
-            app[method](path, endpoint.handler.bind(instance));
+            app[method](path, [globalMiddlewares, endpointMiddlewares], endpoint.handler.bind(instance));
         });
 
         return endpoints.map((endpoint: Endpoint) => {

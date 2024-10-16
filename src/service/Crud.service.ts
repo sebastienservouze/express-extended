@@ -1,6 +1,6 @@
 import {DataSource, EntityNotFoundError, FindOptionsWhere, IsNull, Repository} from "typeorm";
 import {MetadataEntity} from "../db/MetadataEntity";
-import {Page} from "./Page.type";
+import {Page} from "../types/Page.type";
 import {NotMatchingIdError} from "../errors/NotMatchingId.error";
 import {Type} from "@nerisma/di";
 

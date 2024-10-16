@@ -4,7 +4,7 @@ import {Server} from "node:http";
 import {Container} from "@nerisma/di";
 import {Car} from "../../example/Car.entity";
 import {CarController} from "../../example/Car.controller";
-import {Page} from "../../src/service/Page.type";
+import {Page} from "../../src/types/Page.type";
 import expressExtended from "../../src/express.extended";
 import {TestsUtils} from "../tests.utils";
 

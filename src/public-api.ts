@@ -3,7 +3,7 @@ export * from './errors/InvalidBody.error';
 export * from './errors/NotMatchingId.error';
 export * from './express.extended';
 export * from './service/Crud.service';
-export * from './service/Page.type';
+export * from './types/Page.type';
 export * from './web/Controller.decorators';
 export * from './web/ControllerMetadataKeys.enum';
 export * from './web/Crud.controller';
