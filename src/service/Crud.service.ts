@@ -30,7 +30,7 @@ export abstract class CrudService<T extends MetadataEntity> {
             data,
             total,
             page,
-            pageSize
+            pageSize: data.length,
         };
     }
 
