@@ -255,8 +255,7 @@ export abstract class CrudController<T extends MetadataEntity> {
         // Check if the entity has unknown properties
         for (const key in body) {
             const found = this.entityColumns.some(column =>
-                column.propertyName === key ||
-                (column.propertyName.includes('id') && column.propertyName + 'id' === key)
+                column.propertyName === key || column.databaseName === key
             );
 
             if (!found) {

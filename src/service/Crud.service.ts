@@ -51,6 +51,15 @@ export abstract class CrudService<T extends MetadataEntity> {
      * @param entity
      */
     async create(entity: T): Promise<T> {
+        // If the entity has joinColumn as attributes, replace them with a partial entity
+        Object.keys(entity).filter(key => key.endsWith('Id')).forEach(key => {
+            const relation = key.replace('Id', '');
+            entity = {
+                ...entity,
+                [relation]: {id: entity[key as keyof T] as number}
+            };
+        });
+
         return this.repository!.save(entity);
     }
 
