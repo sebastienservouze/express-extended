@@ -72,7 +72,7 @@ describe('CrudService', () => {
             data: [],
             total: 0,
             page: 1,
-            pageSize: 5
+            pageSize: 0
         })
     });
 
