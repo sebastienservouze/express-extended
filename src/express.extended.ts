@@ -51,14 +51,13 @@ export function expressExtended(): express.Application {
             const path = `${basePath}${endpoint.path}`;
             const method = endpoint.verb.toLowerCase() as keyof express.Application;
             const endpointMiddlewares = endpoint.middlewares || [];
-
             app[method](path, [globalMiddlewares, endpointMiddlewares], endpoint.handler.bind(instance));
         });
 
-        return endpoints.map((endpoint: Endpoint) => {
-            endpoint.path = `${basePath}${endpoint.path}`;
-            return endpoint;
-        });
+        return endpoints.map((endpoint: Endpoint) => ({
+            ...endpoint,
+            path: `${basePath}${endpoint.path}`
+        }));
     }
 
     app.useControllers = function (controllers: Type<any>[]): Endpoint[] {

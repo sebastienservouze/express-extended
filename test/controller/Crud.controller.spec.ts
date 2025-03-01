@@ -7,6 +7,7 @@ import {CarController} from "../../example/Car.controller";
 import {Page} from "../../src/types/Page.type";
 import expressExtended from "../../src/express.extended";
 import {TestsUtils} from "../Tests.utils";
+import {InvalidBodyError} from "../../src/errors/InvalidBody.error";
 
 describe('CrudController', () => {
 
@@ -165,10 +166,12 @@ describe('CrudController', () => {
 
         expect(response.status).toEqual(400);
         expect(body).toEqual({
-            message: 'Invalid body:\n' +
-                '- model is required\n' +
-                '- wheels is required\n' +
-                '- releaseDate is required'
+            message: 'Invalid body',
+            errors: [
+                'model is required',
+                'wheels is required',
+                'releaseDate is required',
+            ]
         });
     });
 
@@ -226,6 +229,10 @@ describe('CrudController', () => {
     });
 
     it('should return BAD REQUEST if body is invalid', async () => {
+        jest.spyOn(carService, 'update').mockImplementationOnce(() => {
+            throw new InvalidBodyError('model is required')
+        });
+
         const response = await fetch('http://localhost:3002/cars/1', {
             method: 'PUT',
             body: JSON.stringify({
@@ -239,15 +246,17 @@ describe('CrudController', () => {
 
         expect(response.status).toEqual(400);
         expect(body).toEqual({
-            message: 'Invalid body:\n' +
-                '- model is required'
+            message: 'Invalid body',
+            errors: [
+                'model is required',
+            ]
         });
     });
 
     it('should return NOT FOUND if entity is not found', async () => {
         const car = getCar('model');
         car.id = 1;
-        jest.spyOn(carService, 'update').mockImplementation(() => {
+        jest.spyOn(carService, 'update').mockImplementationOnce(() => {
             throw new EntityNotFoundError(Car, 1)
         });
 
@@ -313,13 +322,14 @@ describe('CrudController', () => {
     });
 
     it('should return BAD REQUEST if fields do not exists', async () => {
-        const car = getExpectedCar(1);
-        jest.spyOn(carService, 'patch').mockResolvedValue(car);
+        jest.spyOn(carService, 'patch').mockImplementationOnce(() => {
+            throw new InvalidBodyError('notAField is not a valid property', 'alsoNotAField is not a valid property')
+        });
         const response = await fetch('http://localhost:3002/cars/1', {
             method: 'PATCH',
             body: JSON.stringify({
                 notAField: 'foo',
-                notAnotherField: 'bar'
+                alsoNotAField: 'bar'
             }),
             headers: {'Content-Type': 'application/json'}
         });
@@ -327,15 +337,17 @@ describe('CrudController', () => {
 
         expect(response.status).toEqual(400);
         expect(body).toEqual({
-            message: 'Invalid body:\n' +
-                '- notAField is not a valid property\n' +
-                '- notAnotherField is not a valid property'
+            message: 'Invalid body',
+            errors: [
+                'notAField is not a valid property',
+                'alsoNotAField is not a valid property',
+            ]
         });
     });
 
     it('should return NOT FOUND if entity is not found', async () => {
         const car = getCar('model');
-        jest.spyOn(carService, 'patch').mockImplementation(() => {
+        jest.spyOn(carService, 'patch').mockImplementationOnce(() => {
             throw new EntityNotFoundError(Car, 1)
         });
 
@@ -376,7 +388,7 @@ describe('CrudController', () => {
     });
 
     it('should return NOT FOUND if entity is not found', async () => {
-        jest.spyOn(carService, 'delete').mockImplementation(() => {
+        jest.spyOn(carService, 'delete').mockImplementationOnce(() => {
             throw new EntityNotFoundError(Car, 1)
         });
 

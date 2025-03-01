@@ -1,5 +1,11 @@
 # @nerisma/express-extended
 
+## 1.0.11
+
+### Patch Changes
+
+- 58f4a75: Changement de la philosophie pour étendre express
+
 ## 1.0.5
 
 ### Patch Changes

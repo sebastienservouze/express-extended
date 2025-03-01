@@ -85,8 +85,9 @@ export abstract class CrudController<T extends MetadataEntity> {
                       .json(created);
         } catch (e) {
             if (e instanceof InvalidBodyError) {
+                const ee = e as InvalidBodyError;
                 return res.status(400)
-                          .json({message: e.message});
+                          .json({message: ee.message, errors: ee.errors});
             }
 
             return res.status(500)
@@ -127,9 +128,15 @@ export abstract class CrudController<T extends MetadataEntity> {
                           .json({message: e.message});
             }
 
-            if (e instanceof InvalidBodyError || e instanceof NotMatchingIdError) {
+            if (e instanceof NotMatchingIdError) {
                 return res.status(400)
                           .json({message: e.message});
+            }
+
+            if (e instanceof InvalidBodyError) {
+                const ee = e as InvalidBodyError;
+                return res.status(400)
+                          .json({message: ee.message, errors: ee.errors});
             }
 
             return res.status(500)
@@ -173,9 +180,11 @@ export abstract class CrudController<T extends MetadataEntity> {
             }
 
             if (e instanceof InvalidBodyError) {
+                const ee = e as InvalidBodyError;
                 return res.status(400)
-                          .json({message: e.message});
+                          .json({message: ee.message, errors: ee.errors});
             }
+
             return res.status(500)
                       .json({message: 'Internal server error'});
         }
@@ -245,7 +254,12 @@ export abstract class CrudController<T extends MetadataEntity> {
 
         // Check if the entity has unknown properties
         for (const key in body) {
-            if (!this.entityColumns.some(column => column.propertyName === key)) {
+            const found = this.entityColumns.some(column =>
+                column.propertyName === key ||
+                (column.propertyName.includes('id') && column.propertyName + 'id' === key)
+            );
+
+            if (!found) {
                 errors.push(`${key} is not a valid property`);
             }
         }

@@ -1,7 +1,10 @@
 export class InvalidBodyError extends Error {
 
+    errors: string[];
+
     constructor(...errors: string[]) {
-        super(`Invalid body:\n- ${errors.join('\n- ')}`);
+        super(`Invalid body`);
+        this.errors = errors;
     }
 
 }
