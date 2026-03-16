@@ -1,8 +1,6 @@
 # @nerisma/express-extended
 
 [![npm version](https://badge.fury.io/js/%40nerisma%2Fexpress-extended.svg)](https://badge.fury.io/js/%40nerisma%2Fexpress-extended)
-[![Build Status](https://travis-ci.com/Nerisma/express-extended.svg?branch=main)](https://travis-ci.com/Nerisma/express-extended)
-[![Coverage Status](https://coveralls.io/repos/github/Nerisma/express-extended/badge.svg?branch=main)](https://coveralls.io/github/Nerisma/express-extended?branch=main)
 
 This library provides extended functionality for creating an Express API in TypeScript.
 
